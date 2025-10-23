@@ -1,0 +1,1290 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .menu-parent:hover .menu-child {
+            display: block
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+
+    <!-- Header (giữ nguyên của bạn) -->
+    <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+    <!-- MAIN -->
+    <main class="max-w-7xl mx-auto px-4 pt-24 pb-12" style="padding-top:88px;">
+        <section class="bg-white rounded-2xl shadow p-7" style="padding-left:80px; padding-right:80px;">
+            <div class="grid grid-cols-12 gap-8">
+                <!-- Cột trái: Ảnh -->
+                <div class="col-span-12 md:col-span-4">
+                    <h2 class="text-base font-semibold text-gray-900">Hình ảnh &amp; Sản phẩm</h2>
+                    <p class="text-xs text-gray-500 mt-1">Tối đa 6 ảnh</p>
+
+                    <!-- KHÓA TỚI KHI CHỌN ĐỦ CHA + CON -->
+                    <label id="bigUpload"
+                        class="mt-4 block w-[315px] h-[200px] rounded-md bg-gray-50 border border-gray-300 grid place-content-center select-none opacity-50 cursor-not-allowed"
+                        title='Vui lòng chọn "Danh mục" & "Danh mục con" trước'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-16 h-16" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3 7h2l2-3h10l2 3h2a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V9a2 2 0 012-2z" />
+                            <circle cx="12" cy="14" r="3.2" class="text-red-500" stroke="currentColor" />
+                        </svg>
+                    </label>
+
+                    <!-- input file chính, giữ nguyên name="images" (multipart) -->
+                    <input id="galleryInput" name="images" type="file" accept="image/*" multiple class="hidden"
+                        form="detailForm" disabled>
+
+                    <!-- các metadata cho ảnh (để backend map -> product_images) -->
+                    <input type="hidden" id="coverNameHidden" name="cover_name" form="detailForm">
+                    <input type="hidden" id="orderNamesHidden" name="order_names" form="detailForm">
+
+                    <div id="thumbStrip" class="hidden mt-4">
+                        <div id="thumbList" class="flex items-start gap-4 flex-wrap"></div>
+                        <p class="text-xs text-gray-500 mt-2 italic">Nhấn và giữ để di chuyển hình ảnh</p>
+                    </div>
+                </div>
+
+                <!-- Cột phải -->
+                <div class="col-span-12 md:col-span-8">
+                    <div class="mx-auto" style="padding-left:50px;">
+                        <!-- Danh mục & Danh mục con -->
+                        <div class="w-full">
+                            <label for="category" class="block text-sm font-medium text-gray-800 mb-1">Danh mục bài đăng
+                                <a class="text-red-500">*</a></label>
+                            <div class="relative">
+                                <select id="category"
+                                    class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 pr-10 py-2.5 text-sm text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400">
+                                    <option value="">-- Chọn danh mục --</option>
+                                    <option th:each="p : ${categories}" th:value="${p.parentId}" th:text="${p.name}">
+                                        Danh mục</option>
+                                </select>
+                                <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-700"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+
+                            <!-- Subcategory -->
+                            <div id="subcatWrap" class="mt-3 hidden">
+                                <label for="subcategory" class="block text-sm font-medium text-gray-800 mb-1">Danh mục
+                                    con <a class="text-red-500">*</a></label>
+                                <div class="relative">
+                                    <select id="subcategory"
+                                        class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 pr-10 py-2.5 text-sm text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400">
+                                        <option value="">-- Chọn danh mục con --</option>
+                                    </select>
+                                    <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-700"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pre-render TEMPLATE danh mục con -->
+                        <th:block th:each="p : ${categories}">
+                            <template th:id="${'tpl-subcat-' + p.parentId}">
+                                <option value="">-- Chọn danh mục con --</option>
+                                <option th:each="c : ${p.children}" th:value="${c.childId}" th:text="${c.name}">Danh mục
+                                    con</option>
+                            </template>
+                        </th:block>
+
+                        <!-- Intro -->
+                        <div id="introBlock" class="mt-9 flex justify-center">
+                            <img th:src="@{/image/dangbai/social-media.webp}" src="/image/dangbai/social-media.webp"
+                                alt="illustration" class="w-[320px] h-[320px] object-contain select-none opacity-95">
+                        </div>
+                        <div id="introText" class="mt-3 text-center">
+                            <h3 class="text-lg font-extrabold text-gray-900">Đăng liền tay - Bán liền ngay</h3>
+                            <p class="text-sm text-gray-600 mt-2">Chọn “Danh mục bài đăng” và “Danh mục con” để bắt đầu.
+                            </p>
+                        </div>
+
+                        <!-- Form chi tiết -->
+                        <form id="detailForm" class="hidden mt-6 space-y-5" th:action="@{/dangbai}" action="/dangbai"
+                            method="post" enctype="multipart/form-data">
+                            <!-- CSRF -->
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                            <!-- products.parent_id / products.child_id -->
+                            <input type="hidden" name="parent_id" id="parentIdHidden">
+                            <input type="hidden" name="child_id" id="childIdHidden">
+
+                            <!-- addresses.* -->
+                            <input type="hidden" name="province" id="provinceHidden" value="Đà Nẵng">
+                            <input type="hidden" name="ward" id="wardHidden">
+                            <input type="hidden" name="address_detail" id="addrDetailHidden">
+
+                            <!-- ✅ trạng thái miễn phí -->
+                            <input type="hidden" name="is_free" id="isFreeHidden" value="0">
+
+                            <h4 class="text-base font-semibold text-gray-900">Thông tin chi tiết:</h4>
+
+                            <!-- products.name -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề / Tên sản phẩm <a
+                                        class="text-red-500">*</a></label>
+                                <input id="titleInput" name="name" type="text" maxlength="50"
+                                    placeholder="VD: Sách Toán A1, Máy sấy tóc..."
+                                    class="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm">
+                                <p id="titleCount" class="text-xs text-gray-400 mt-1 text-right">0 / 50</p>
+                            </div>
+
+                            <!-- products.type -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tình trạng <a
+                                        class="text-red-500">*</a></label>
+                                <div class="flex items-center gap-4">
+                                    <label class="inline-flex items-center gap-2 text-sm">
+                                        <input type="radio" name="type" value="USED" class="text-red-600" checked>
+                                        <span>Đã sử dụng</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 text-sm">
+                                        <input type="radio" name="type" value="NEW" class="text-red-600">
+                                        <span>Mới</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- product_specs.* -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Xuất xứ</label>
+                                    <input name="origin" type="text" placeholder="VD: Việt Nam, Nhật Bản..."
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Chất liệu</label>
+                                    <input name="material" type="text" placeholder="VD: vải, da, nhựa, kim loại..."
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Màu sắc</label>
+                                    <input name="color" type="text" placeholder="VD: đỏ, đen..."
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phụ kiện kèm
+                                        theo</label>
+                                    <input name="accessories" type="text" placeholder="VD: Sạc, Cáp, Tai nghe..."
+                                        class="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm">
+                                </div>
+                            </div>
+
+                            <!-- products.price -->
+                            <div class="sm:w-2/3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Giá bán <a
+                                        class="text-red-500">*</a></label>
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <div class="relative flex-1 min-w-[220px]">
+                                        <input id="priceInput" name="price" type="text" placeholder="0"
+                                            class="w-full rounded-md border border-gray-300 pl-3 pr-14 py-2.5 text-sm">
+                                        <span
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">VNĐ</span>
+                                    </div>
+                                    <label class="inline-flex items-center gap-2 text-sm whitespace-nowrap">
+                                        <input id="freeCheckbox" type="checkbox" class="text-red-600">
+                                        <span>Tôi muốn tặng miễn phí</span>
+                                    </label>
+                                </div>
+                                <p class="text-xs text-red-600 mt-1 hidden" data-err="priceInput"></p>
+                            </div>
+
+                            <!-- products.description -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Mô tả chi tiết <a
+                                        class="text-red-500">*</a></label>
+                                <textarea id="descInput" name="description" rows="5" maxlength="1500"
+                                    placeholder="• Tên sản phẩm • Tình trạng thực tế • Kích thước/màu sắc • Phụ kiện kèm theo • Lý do bán • Lưu ý khi xem hàng..."
+                                    class="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm"></textarea>
+                                <p id="descCount" class="text-xs text-gray-400 mt-1 text-right">0 / 1500</p>
+                            </div>
+
+                            <!-- UI địa chỉ (hiển thị) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ <a
+                                        class="text-red-500">*</a></label>
+                                <input id="addressInput" type="text" placeholder="Nhấn để nhập địa chỉ"
+                                    class="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm cursor-pointer bg-white"
+                                    readonly>
+                                <p class="text-xs text-gray-500 mt-1">Nhấn vào ô để nhập địa chỉ chi tiết</p>
+                            </div>
+                            <!-- ảnh: name="images" đã đặt ở cột trái -->
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Footer đăng tin -->
+                <div id="postFooter" class="col-span-12 mt-6 hidden">
+                    <div class="rounded-md border overflow-hidden">
+                        <div class="grid grid-cols-12">
+                            <div class="col-span-12 md:col-span-5 relative">
+                                <button type="button" id="postTypeBtn"
+                                    class="w-full h-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-none">
+                                    <div class="w-9 h-9 grid place-content-center border rounded">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-gray-700"
+                                            aria-hidden="true" focusable="false">
+                                            <circle cx="12" cy="12" r="9"></circle>
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M8.5 12.5l2 2 4.5-4.5"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="text-sm">Đã chọn <span id="postTypeLabel" class="font-semibold">Đăng
+                                                bài thường ( miễn phí )</span></div>
+                                    </div>
+                                    <svg class="ml-auto w-4 h-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="col-span-12 md:col-span-7 border-t md:border-t-0 md:border-l">
+                                <div class="p-4 flex flex-wrap items-center justify-center md:justify-end gap-3">
+                                    <button type="button" id="previewBtn"
+                                        class="px-4 py-2 text-sm rounded-md border hover:bg-gray-50">Xem trước</button>
+                                    <button type="button" id="saveDraftBtn"
+                                        class="px-4 py-2 text-sm rounded-md border hover:bg-gray-50">Lưu nháp</button>
+                                    <button type="submit" form="detailForm"
+                                        class="px-4 py-2 text-sm rounded-md bg-red-100 text-red-600 hover:bg-red-200">Đăng
+                                        tin</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal chọn lượt đăng -->
+    <div id="postTypeModal" class="hidden fixed inset-0 z-[60]">
+        <div id="postTypeOverlay" class="absolute inset-0 bg-black/50"></div>
+        <div class="absolute inset-0 grid place-items-center p-4">
+            <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-200">
+                <div class="relative px-6 pt-5 pb-3 border-b border-gray-100">
+                    <!-- Nút đóng -->
+                    <button id="postTypeClose" class="absolute right-4 top-4 w-9 h-9 rounded-full bg-black/60 text-white
+                     hover:bg-black/80 z-10 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+                        </svg>
+                    </button>
+                    <h3 class="text-center text-xl font-bold text-red-600 tracking-tight">Chọn gói bài đăng
+                    </h3>
+                </div>
+                <div class="px-7 py-5">
+                    <p class="text-base font-semibold text-gray-800 mb-4">Ưu đãi từ <span class="text-red-600">STUDENT
+                            MARKET</span></p>
+                    <button type="button" data-choice="Đăng bài thường ( miễn phí )"
+                        class="w-full text-left bg-white rounded-2xl border-2 border-gray-200 hover:border-red-300 px-5 py-4 flex items-start gap-4 transition shadow-sm hover:shadow-md">
+                        <div class="w-12 h-12 rounded-xl grid place-content-center border-2 border-gray-300 bg-gray-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600" fill="none"
+                                stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+                                <path d="M8 9h8M8 13h8M8 17h6" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-base font-semibold">Đăng bài thường — <span class="text-green-600">Miễn
+                                    phí</span></p>
+                            <p class="text-sm text-gray-600 mt-1">Loại bài: Thường • Hiển thị 30 ngày</p>
+                            <p class="text-sm text-gray-600">Không được ưu tiên hiển thị</p>
+                        </div>
+                    </button>
+
+                    <div class="h-4"></div>
+
+                    <button type="button" data-choice="Đăng bài VIP (trả phí)"
+                        class="w-full text-left bg-white rounded-2xl border-2 border-gray-200 hover:border-red-300 px-5 py-4 flex items-start gap-4 transition shadow-sm hover:shadow-md">
+                        <div class="w-12 h-12 rounded-xl grid place-content-center border-2 border-gray-300 bg-gray-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600" fill="none"
+                                stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 18h18l-2-10-4.5 3.5L12 6l-2.5 5.5L5 8 3 18z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-base font-semibold">Đăng bài VIP — <span class="text-yellow-600">Trả
+                                    phí</span></p>
+                            <p class="text-sm text-gray-600 mt-1">Loại bài: VIP • Không hết hạn</p>
+                            <p class="text-sm text-gray-600">Ưu tiên hiển thị, ghim trên trang chủ</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal địa chỉ -->
+    <div id="addressModal" class="hidden fixed inset-0 z-[70]" aria-hidden="true">
+        <div id="addressOverlay" class="absolute inset-0 bg-black/50"></div>
+        <div class="absolute inset-0 grid place-items-center p-4">
+            <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-300 relative">
+                <button id="addressClose"
+                    class="absolute right-4 top-3 text-lg font-bold text-gray-700 hover:opacity-70"
+                    aria-label="Đóng">×</button>
+                <h3 class="text-center text-lg md:text-xl font-bold mt-3 mb-2">Địa chỉ</h3>
+
+                <div class="px-6 pb-6 space-y-3">
+                    <div>
+                        <label for="addrProvince" class="block text-sm font-medium text-gray-700 mb-1">Tỉnh / Thành phố
+                            <a class="text-red-500">*</a></label>
+                        <input id="addrProvince" type="text" value="Đà Nẵng"
+                            class="w-full rounded-md border border-gray-300 px-4 py-3 text-sm bg-gray-100 cursor-not-allowed"
+                            readonly>
+                        <p class="mt-1 text-xs text-gray-500">Hệ thống chỉ hỗ trợ Đà Nẵng</p>
+                    </div>
+
+                    <div>
+                        <label for="addrWard" class="block text-sm font-medium text-gray-700 mb-1">Phường / Xã <a
+                                class="text-red-500">*</a></label>
+                        <input id="addrWard" type="text" placeholder="VD: Phường Hải Châu 1"
+                            class="w-full rounded-md border border-gray-300 px-4 py-3 text-sm"
+                            autocomplete="address-level3">
+                        <p class="mt-1 text-xs text-red-600 hidden" data-err="addrWard">Vui lòng nhập Phường/Xã.</p>
+                    </div>
+
+                    <div>
+                        <label for="addrDetail" class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ cụ thể <a
+                                class="text-red-500">*</a></label>
+                        <input id="addrDetail" type="text" placeholder="VD: 12 Nguyễn Huệ, lầu 3, phòng 302"
+                            class="w-full rounded-md border border-gray-300 px-4 py-3 text-sm"
+                            autocomplete="street-address">
+                        <p class="mt-1 text-xs text-red-600 hidden" data-err="addrDetail">Vui lòng nhập Địa chỉ cụ thể.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <p class="text-xs text-gray-500">Nhấn <span class="font-semibold">Enter</span> để xác nhận —
+                            hoặc nút bên dưới.</p>
+                        <div class="flex items-center gap-2">
+                            <button id="addressClear"
+                                class="px-4 py-2 rounded-xl border text-sm hover:bg-gray-50">Xoá</button>
+                            <button id="addressDone"
+                                class="px-4 py-2 rounded-xl bg-red-100 text-red-600 font-bold tracking-wide hover:bg-red-200">Xong</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal XEM TRƯỚC -->
+    <div id="previewModal" class="hidden fixed inset-0 z-[70]">
+        <div class="absolute inset-0 bg-black/50"></div>
+
+        <div class="absolute inset-0 grid place-items-center p-4">
+            <div class="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden relative">
+
+                <!-- Nút đóng -->
+                <button id="previewClose" class="absolute right-4 top-4 w-9 h-9 rounded-full bg-black/60 text-white
+                     hover:bg-black/80 z-10 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                </button>
+
+                <!-- Tiêu đề -->
+                <div class="border-b border-gray-200 px-6 pt-5 pb-3 text-center">
+                    <h2 class="text-xl font-bold text-red-600 tracking-tight">
+                        Xem trước bài đăng
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 md:p-6">
+                    <!-- LEFT: Gallery -->
+                    <div class="md:col-span-7" style="width: 540px">
+                        <div class="relative w-full h-[280px] md:h-[340px] bg-gray-50 rounded-xl overflow-hidden">
+                            <img id="previewImage" src="/image/card/image.png" alt="Ảnh sản phẩm"
+                                class="w-full h-full object-cover select-none" />
+
+                            <!-- arrows -->
+                            <button id="prevImageBtn" class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center
+                     rounded-full bg-black/45 text-white hover:bg-black/65">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <button id="nextImageBtn" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center
+                     rounded-full bg-black/45 text-white hover:bg-black/65">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+
+                            <!-- counter -->
+                            <div id="previewCounter"
+                                class="absolute right-2 bottom-2 text-xs px-2 py-1 rounded-md bg-black/60 text-white">
+                                1/1
+                            </div>
+                        </div>
+
+                        <!-- thumbnails -->
+                        <div id="previewThumbs" class="mt-3 flex gap-3 overflow-x-auto pb-1"></div>
+                    </div>
+
+                    <!-- RIGHT: Info -->
+                    <div class="md:col-span-5">
+                        <div class="space-y-3">
+                            <h3 id="previewTitle" class="text-xl font-semibold text-gray-900">Tên sản phẩm</h3>
+
+                            <!-- Giá -->
+                            <div>
+                                <span id="previewPrice" class="text-2xl font-bold text-red-600">0đ</span>
+                            </div>
+
+                            <!-- Tình trạng -->
+                            <div>
+                                <span id="previewType"
+                                    class="inline-block text-xs px-2 py-1 rounded bg-gray-100 text-gray-700">
+                                    Đã sử dụng
+                                </span>
+                            </div>
+
+                            <!-- Địa chỉ -->
+                            <div class="text-sm text-gray-600">
+                                <i class="fa-solid fa-location-dot mr-1"></i>
+                                <span id="previewAddr">Địa chỉ</span>
+                            </div>
+
+                            <!-- Mô tả -->
+                            <div class="pt-2">
+                                <p class="text-sm text-gray-800 font-medium mb-1">Mô tả</p>
+                                <p id="previewDesc" class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                                    …
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Overlay cho modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <!-- Modal xác nhận đăng xuất -->
+    <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Đếm ký tự cho tiêu đề & mô tả -->
+    <script>
+        // ==== Đếm ký tự Tiêu đề & Mô tả ====
+        const titleInput = document.getElementById('titleInput');
+        const descInput = document.getElementById('descInput');
+        const titleCount = document.getElementById('titleCount');
+        const descCount = document.getElementById('descCount');
+
+        const MAX_TITLE = 50;
+        const MAX_DESC = 1500;
+
+        function updateCharCount(el, counter, max) {
+            if (!el || !counter) return;
+            counter.textContent = `${el.value.length} / ${max}`;
+        }
+
+        titleInput?.addEventListener('input', () => updateCharCount(titleInput, titleCount, MAX_TITLE));
+        descInput?.addEventListener('input', () => updateCharCount(descInput, descCount, MAX_DESC));
+
+        // Khởi tạo ban đầu khi load
+        updateCharCount(titleInput, titleCount, MAX_TITLE);
+        updateCharCount(descInput, descCount, MAX_DESC);
+
+
+    </script>
+
+    <!-- JS ĐĂNG BÀI & LOGIC CHUNG -->
+    <script>
+        (function () {
+            // ===== Toast helper (không đụng gì khác). Dùng lại nếu đã có sẵn =====
+            window.showToast = window.showToast || function (type, message) {
+                const isSuccess = type === 'success';
+                const border = isSuccess ? 'border-green-300' : 'border-red-300';
+                const titleColor = isSuccess ? 'text-green-700' : 'text-red-700';
+                const barColor = isSuccess ? 'bg-green-500' : 'bg-red-500';
+                const icon = isSuccess
+                    ? '<svg class="w-5 h-5 mt-0.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
+                    : '<svg class="w-5 h-5 mt-0.5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M5.07 19h13.86A2 2 0 0021 17.13L13.93 4.5a2 2 0 00-3.86 0L3 17.13A2 2 0 005.07 19z"/></svg>';
+
+                const stack = document.getElementById('toastStack') || (function () {
+                    const d = document.createElement('div');
+                    d.id = 'toastStack';
+                    d.className = 'fixed top-16 right-6 z-[9999] space-y-3';
+                    document.body.appendChild(d);
+                    return d;
+                })();
+
+                const t = document.createElement('div');
+                t.setAttribute('role', 'alert');
+                t.setAttribute('aria-live', 'assertive');
+                t.className = `toast opacity-0 translate-y-2 transition-all duration-300 bg-white ${border} rounded-xl shadow-lg overflow-hidden max-w-sm`;
+
+                t.innerHTML = `
+        <div class="flex items-start gap-3 px-4 py-3">
+          ${icon}
+          <div class="flex-1">
+            <p class="font-semibold ${titleColor}">${isSuccess ? 'Thành công' : 'Không thể thêm ảnh'}</p>
+            <p class="text-sm text-gray-700">${message}</p>
+          </div>
+          <button type="button" class="ml-2 text-gray-400 hover:text-gray-600" onclick="(window.closeToast||function(x){x.closest?x=x.closest('.toast'):0; x&&x.remove();})(this)">✕</button>
+        </div>
+        <div class="h-1 ${barColor} w-0 progress"></div>
+      `;
+                stack.appendChild(t);
+
+                requestAnimationFrame(() => {
+                    t.classList.remove('opacity-0', 'translate-y-2');
+                    const bar = t.querySelector('.progress');
+                    if (bar) {
+                        bar.style.transition = 'width 4s linear';
+                        requestAnimationFrame(() => bar.style.width = '100%');
+                    }
+                    setTimeout(() => {
+                        if (window.closeToast) window.closeToast(t);
+                        else t.remove();
+                    }, 4200);
+                });
+            };
+
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init) } else { init() }
+
+            function init() {
+                let filesState = []; // [{file, url}]
+                let dt = new DataTransfer(); // ✅ giữ file thật để submit
+                // === Thông báo thành công và reset khi ?success=1 ===
+                (function handleSuccessFromRedirect() {
+                    const url = new URL(window.location.href);
+                    if (url.searchParams.get('success') === '1') {
+                        showToast('success', 'Bài của bạn đã được đăng!');
+                        url.searchParams.delete('success');
+                        window.history.replaceState({}, '', url.pathname + (url.search ? '?' + url.searchParams.toString() : '') + url.hash);
+                        resetWholePage();
+                    }
+                })();
+
+                // Uploader
+                const MAX_FILES = 6;
+                const bigUpload = document.getElementById('bigUpload');
+                const galleryInp = document.getElementById('galleryInput');
+                const strip = document.getElementById('thumbStrip');
+                const list = document.getElementById('thumbList');
+                const coverNameHidden = document.getElementById('coverNameHidden');
+                const orderNamesHidden = document.getElementById('orderNamesHidden');
+
+                // Form / Category
+                const category = document.getElementById('category');
+                const subcatWrap = document.getElementById('subcatWrap');
+                const subcategory = document.getElementById('subcategory');
+                const detailForm = document.getElementById('detailForm');
+                const introBlock = document.getElementById('introBlock');
+                const introText = document.getElementById('introText');
+                const postFooter = document.getElementById('postFooter');
+
+                // Hidden ids
+                const parentIdHidden = document.getElementById('parentIdHidden');
+                const childIdHidden = document.getElementById('childIdHidden');
+
+                // Post type modal
+                const postTypeBtn = document.getElementById('postTypeBtn');
+                const postTypeLabel = document.getElementById('postTypeLabel');
+                const postTypeModal = document.getElementById('postTypeModal');
+                const postTypeOverlay = document.getElementById('postTypeOverlay');
+                const postTypeClose = document.getElementById('postTypeClose');
+
+                // Address modal
+                const addressModal = document.getElementById('addressModal');
+                const addressOverlay = document.getElementById('addressOverlay');
+                const addressClose = document.getElementById('addressClose');
+                const addressInput = document.getElementById('addressInput');
+                const addressDone = document.getElementById('addressDone');
+                const addressClear = document.getElementById('addressClear');
+                const addrProvince = document.getElementById('addrProvince');
+                const addrWard = document.getElementById('addrWard');
+                const addrDetail = document.getElementById('addrDetail');
+
+                // Giá / Miễn phí
+                const freeCheckbox = document.getElementById('freeCheckbox');
+                const priceInput = document.getElementById('priceInput');
+                const isFreeHidden = document.getElementById('isFreeHidden');
+                const PRICE_LOCALE = 'vi-VN';
+                const unformatPrice = str => (str || '').toString().replace(/\D/g, '');
+                const formatPriceNumber = num => { const n = Number(num); return Number.isFinite(n) ? n.toLocaleString(PRICE_LOCALE) : '' };
+                const getTypedPriceNumber = () => { const digits = unformatPrice(priceInput?.value || ''); return digits ? Number(digits) : 0; };
+
+                let wardDropdown = null;
+
+                // ==== Trạng thái chọn danh mục ====
+                const isParentChosen = () => !!(category && category.value);
+                const isChildChosen = () => !!(subcategory && subcategory.value);
+                const isBothChosen = () => isParentChosen() && isChildChosen();
+
+                // ==== Fallback LOCAL: Đổ danh mục con từ TEMPLATE ====
+                function fillSubcategoriesLocal(parentId) {
+                    if (!subcategory || !subcatWrap) return;
+                    subcategory.innerHTML = '';
+                    const tpl = document.getElementById('tpl-subcat-' + parentId);
+                    if (!tpl) { subcatWrap.classList.add('hidden'); return; }
+                    subcategory.appendChild(tpl.content.cloneNode(true));
+                    subcatWrap.classList.remove('hidden');
+                }
+
+                // ==== Mở/khóa uploader ====
+                function updateUploaderState() {
+                    if (!bigUpload || !galleryInp) return;
+                    if (isBothChosen()) {
+                        bigUpload.classList.remove('opacity-50', 'cursor-not-allowed');
+                        bigUpload.title = '';
+                        galleryInp.disabled = false;
+                    } else {
+                        bigUpload.classList.add('opacity-50', 'cursor-not-allowed');
+                        bigUpload.title = 'Vui lòng chọn "Danh mục" và "Danh mục con" trước khi thêm ảnh!';
+                        galleryInp.disabled = true;
+                    }
+                }
+
+                function showFieldError(el, show, msg) {
+                    if (!el) return;
+                    el.classList.toggle('border-red-500', !!show);
+                    const id = el.id || (el.name ? `auto_${el.name}` : '');
+                    if (!el.id && id) el.id = id;
+                    let msgEl = document.querySelector(`[data-err="${el.id}"]`);
+                    if (!msgEl) {
+                        msgEl = document.createElement('p');
+                        msgEl.className = 'text-xs text-red-600 mt-1';
+                        msgEl.dataset.err = el.id;
+                        (el.insertAdjacentElement ? el.insertAdjacentElement('afterend', msgEl) : el.parentNode.appendChild(msgEl));
+                    }
+                    msgEl.textContent = msg || 'Vui lòng nhập thông tin.';
+                    msgEl.classList.toggle('hidden', !show);
+                }
+
+                // Error ảnh
+                function getImagesErrorEl() {
+                    let errEl = document.querySelector('[data-err="images"]');
+                    if (!errEl) {
+                        errEl = document.createElement('p');
+                        errEl.className = 'text-xs text-red-600 mt-2 hidden';
+                        errEl.dataset.err = 'images';
+                        const anchor = strip || bigUpload;
+                        if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(errEl, anchor.nextSibling);
+                    }
+                    return errEl;
+                }
+                function showImageError(show, msg) {
+                    const el = getImagesErrorEl();
+                    if (!el) return;
+                    if (msg) el.textContent = msg;
+                    el.classList.toggle('hidden', !show);
+                    if (bigUpload) { bigUpload.classList.toggle('ring-2', show); bigUpload.classList.toggle('ring-red-300', show); }
+                    if (strip) { strip.classList.toggle('ring-2', show); strip.classList.toggle('ring-red-300', show); }
+                }
+
+                // ==== Uploader ====
+                if (bigUpload && galleryInp) {
+                    bigUpload.addEventListener('click', (e) => {
+                        if (!isBothChosen()) { e.preventDefault(); showToast('error', 'Vui lòng chọn "Danh mục" và "Danh mục con" trước khi thêm ảnh!'); return; }
+                        galleryInp.click();
+                    });
+                    galleryInp.addEventListener('change', () => {
+                        if (!isBothChosen()) {
+                            galleryInp.value = '';
+                            showToast('error', 'Vui lòng chọn "Danh mục" và "Danh mục con" trước khi thêm ảnh!');
+                            return;
+                        }
+
+                        const remain = MAX_FILES - filesState.length;
+                        const picked = Array.from(galleryInp.files || []).slice(0, remain);
+
+                        if (!picked.length) return;
+
+                        // ✅ Chỉ thêm ảnh có kích thước tối thiểu 300x300
+                        let processed = 0;
+                        let rejected = 0;
+
+                        picked.forEach(f => {
+                            const url = URL.createObjectURL(f);
+                            const img = new Image();
+                            img.onload = () => {
+                                if (img.naturalWidth >= 300 && img.naturalHeight >= 300) {
+                                    filesState.push({ file: f, url });
+                                    dt.items.add(f); // giữ file thật để submit
+                                } else {
+                                    rejected++;
+                                    URL.revokeObjectURL(url);
+                                }
+                                doneOne();
+                            };
+                            img.onerror = () => {
+                                rejected++;
+                                URL.revokeObjectURL(url);
+                                doneOne();
+                            };
+                            img.src = url;
+                        });
+
+                        function doneOne() {
+                            processed++;
+                            if (processed === picked.length) {
+                                // Cập nhật lại input với danh sách file hợp lệ
+                                galleryInp.files = dt.files;
+                                renderStrip();
+                                if (rejected > 0) {
+                                    showToast('error', `Đã bỏ qua ${rejected} ảnh vì nhỏ hơn 300×300 pixel!`);
+                                }
+                            }
+                        }
+                    });
+
+                }
+
+                // Cập nhật 2 hidden cho ảnh bìa + thứ tự theo filesState
+                function syncImageMetaHidden() {
+                    const names = filesState.map(x => x.file.name);
+                    orderNamesHidden.value = names.join(',');
+                    coverNameHidden.value = names[0] || '';
+                }
+
+                function renderStrip() {
+                    if (!list || !strip || !bigUpload) return;
+                    list.innerHTML = '';
+                    if (!filesState.length) {
+                        bigUpload.classList.remove('hidden');
+                        strip.classList.add('hidden');
+                        updateUploaderState();
+                        syncImageMetaHidden();
+                        return;
+                    }
+                    bigUpload.classList.add('hidden');
+                    strip.classList.remove('hidden');
+
+                    filesState.forEach((item, idx) => {
+                        const wrap = document.createElement('div');
+                        wrap.className = 'relative w-[150px]';
+                        wrap.draggable = true;
+
+                        const img = document.createElement('img');
+                        img.src = item.url; img.alt = item.file.name;
+                        img.className = 'w-[150px] h-[100px] object-cover rounded-md border';
+
+                        const close = document.createElement('button');
+                        close.type = 'button'; close.textContent = '✕';
+                        close.className = 'absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black text-white text-xs grid place-items-center';
+                        close.addEventListener('click', () => {
+                            URL.revokeObjectURL(item.url);
+                            filesState.splice(idx, 1);
+
+                            // ✅ rebuild dt theo filesState hiện tại
+                            dt = new DataTransfer();
+                            filesState.forEach(x => dt.items.add(x.file));
+                            galleryInp.files = dt.files;
+
+                            renderStrip();
+                            if (filesState.length >= 1) showImageError(false);
+                        });
+
+                        const badge = document.createElement('div');
+                        badge.className = 'absolute bottom-2 left-2 text-white bg-black/70 text-xs px-2 py-[2px] rounded cursor-pointer';
+                        badge.textContent = idx === 0 ? 'Hình bìa' : 'Đặt làm bìa';
+                        badge.onclick = () => {
+                            if (idx > 0) {
+                                const [x] = filesState.splice(idx, 1);
+                                filesState.unshift(x);
+                                renderStrip();
+                            }
+                        };
+
+                        // drag
+                        wrap.addEventListener('dragstart', (e) => {
+                            e.dataTransfer.setData('text/plain', String(idx));
+                            setTimeout(() => wrap.classList.add('opacity-60'), 0);
+                        });
+                        wrap.addEventListener('dragend', () => wrap.classList.remove('opacity-60'));
+                        wrap.addEventListener('dragover', (e) => { e.preventDefault(); wrap.classList.add('ring-2', 'ring-red-300'); });
+                        wrap.addEventListener('dragleave', () => wrap.classList.remove('ring-2', 'ring-red-300'));
+                        wrap.addEventListener('drop', (e) => {
+                            e.preventDefault();
+                            wrap.classList.remove('ring-2', 'ring-red-300');
+                            const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                            const to = idx;
+                            if (isNaN(from) || from === to) return;
+                            const [moved] = filesState.splice(from, 1);
+                            filesState.splice(to, 0, moved);
+                            renderStrip();
+                        });
+
+                        wrap.append(img, close, badge);
+                        list.appendChild(wrap);
+                    });
+
+                    // nút thêm
+                    if (filesState.length < MAX_FILES) {
+                        const add = document.createElement('button'); add.type = 'button';
+                        add.className = 'w-[150px] h-[100px] rounded-md border-2 border-dashed border-red-300 grid place-content-center bg-white hover:bg-red-50';
+                        add.innerHTML = '<span class="text-3xl leading-none text-red-500">+</span>';
+                        add.addEventListener('click', () => {
+                            if (!isBothChosen()) { showToast('error', 'Vui lòng chọn "Danh mục" và "Danh mục con" trước khi thêm ảnh!'); return; }
+                            galleryInp?.click();
+                        });
+                        list.appendChild(add);
+                    }
+
+                    // cập nhật hidden theo preview hiện tại
+                    syncImageMetaHidden();
+                    showImageError(false);
+                }
+
+                // ==== Hiển thị/ẩn form khi đủ CHA + CON ====
+                function toggleDetailBlocks() {
+                    const show = isBothChosen();
+                    detailForm?.classList.toggle('hidden', !show);
+                    postFooter?.classList.toggle('hidden', !show);
+                    introBlock?.classList.toggle('hidden', show);
+                    introText?.classList.toggle('hidden', show);
+                    updateUploaderState();
+                }
+
+                // ==== Chọn Danh mục cha ====
+                category?.addEventListener('change', () => {
+                    const pid = category.value || '';
+                    parentIdHidden.value = pid;
+
+                    // reset con
+                    childIdHidden.value = '';
+                    if (subcategory) subcategory.value = '';
+
+                    // nạp subcategory từ template
+                    if (pid) fillSubcategoriesLocal(pid); else subcatWrap?.classList.add('hidden');
+
+                    // đổi danh mục => dọn ảnh cũ
+                    if (filesState.length) {
+                        filesState.forEach(i => URL.revokeObjectURL(i.url));
+                        filesState = [];
+                        renderStrip();
+                    }
+                    toggleDetailBlocks();
+                });
+
+                // ==== Chọn Danh mục con ====
+                subcategory?.addEventListener('change', () => {
+                    childIdHidden.value = subcategory.value || '';
+                    toggleDetailBlocks();
+                });
+
+                // ==== Giá ====
+                if (priceInput) {
+                    priceInput.addEventListener('input', (e) => { const d = unformatPrice(e.target.value); e.target.value = d ? formatPriceNumber(d) : ''; });
+                    priceInput.addEventListener('blur', (e) => { const d = unformatPrice(e.target.value); e.target.value = d ? formatPriceNumber(d) : ''; });
+                }
+                // ✅ KHÔNG dùng disabled; dùng readOnly để vẫn submit giá
+                freeCheckbox?.addEventListener('change', () => {
+                    const free = freeCheckbox.checked;
+                    isFreeHidden.value = free ? '1' : '0';
+                    if (priceInput) {
+                        priceInput.readOnly = free;
+                        priceInput.classList.toggle('bg-gray-100', free);
+                        if (free) {
+                            priceInput.value = '0';
+                            showFieldError(priceInput, false);
+                        } else if (getTypedPriceNumber() === 0) {
+                            priceInput.value = '';
+                        }
+                    }
+                });
+
+                // ==== Modal loại bài đăng ====
+                function openPostTypeModal() { postTypeModal?.classList.remove('hidden'); document.body.classList.add('overflow-hidden'); }
+                function closePostTypeModal() { postTypeModal?.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }
+                postTypeBtn?.addEventListener('click', (e) => { e.stopPropagation(); openPostTypeModal(); });
+                postTypeOverlay?.addEventListener('click', closePostTypeModal);
+                postTypeClose?.addEventListener('click', closePostTypeModal);
+                document.addEventListener('keydown', (e) => { if (!postTypeModal?.classList.contains('hidden') && e.key === 'Escape') closePostTypeModal(); });
+                postTypeModal?.querySelectorAll('[data-choice]')?.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const choice = btn.getAttribute('data-choice') || 'Đăng tin thường ( miễn phí )';
+                        postTypeLabel.textContent = choice;
+                        postTypeModal.querySelectorAll('[data-choice]').forEach(b => b.classList.remove('ring-2', 'ring-red-400'));
+                        btn.classList.add('ring-2', 'ring-red-400'); setTimeout(closePostTypeModal, 250);
+                    });
+                });
+
+                // ==== Modal địa chỉ (Đà Nẵng) ====
+                function ensureDaNangProvince() { if (addrProvince) { addrProvince.value = 'Đà Nẵng'; addrProvince.readOnly = true; addrProvince.classList.add('bg-gray-100', 'cursor-not-allowed'); } }
+                let wd = null;
+                const WARDS_94 = ["Phường Hải Châu", "Phường Hòa Cường", "Phường Thanh Khê", "Phường An Khê", "Phường An Hải", "Phường Sơn Trà", "Phường Ngũ Hành Sơn", "Phường Hòa Khánh", "Phường Hải Vân", "Phường Liên Chiểu", "Phường Cẩm Lệ", "Phường Hòa Xuân"];
+                function openAddressModal() { prefill(); createDD(); lockWard(); addressModal.classList.remove('hidden'); document.body.classList.add('overflow-hidden'); (addrWard.value ? addrDetail : addrWard)?.focus(); }
+                function closeAddressModal() { hideDD(); addressModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }
+                function createDD() { if (!addressModal || wd) return; wd = document.createElement('div'); wd.id = 'wardDropdown'; wd.className = 'absolute z-[80] max-h-64 overflow-auto bg-white border border-gray-300 rounded-lg shadow-md text-sm'; wd.style.display = 'none'; addressModal.appendChild(wd); addressModal.addEventListener('click', (e) => { if (e.target === addrWard) return; if (!wd.contains(e.target)) hideDD(); }); }
+                function posDD() { const m = addressModal.getBoundingClientRect(); const r = addrWard.getBoundingClientRect(); wd.style.top = (r.bottom - m.top + 4) + 'px'; wd.style.left = (r.left - m.left) + 'px'; wd.style.width = r.width + 'px'; }
+                function renderDD() { wd.innerHTML = ''; WARDS_94.forEach(n => { const b = document.createElement('button'); b.type = 'button'; b.className = 'w-full text-left px-3 py-2 hover:bg-gray-100'; b.textContent = n; b.addEventListener('click', () => { addrWard.value = n; hideDD(); addrDetail?.focus(); }); wd.appendChild(b); }); }
+                function showDD() { posDD(); renderDD(); wd.style.display = 'block'; }
+                function hideDD() { if (!wd) return; wd.style.display = 'none'; }
+                function lockWard() { addrWard.readOnly = true; addrWard.placeholder = 'Chọn phường/xã (chỉ chọn)…'; addrWard.classList.add('cursor-pointer'); addrWard.addEventListener('click', () => { if (wd?.style.display !== 'block') showDD(); }); addrWard.addEventListener('blur', () => setTimeout(hideDD, 120)); }
+                function prefill() { ensureDaNangProvince(); if (addressInput) { addrWard.value = addressInput.dataset.ward || ''; addrDetail.value = addressInput.dataset.detail || ''; } }
+                function save() { addressInput.dataset.province = 'Đà Nẵng'; addressInput.dataset.ward = (addrWard.value || '').trim(); addressInput.dataset.detail = (addrDetail.value || '').trim(); }
+                function buildAddr() { return `${(addrDetail.value || '').trim()}, ${(addrWard.value || '').trim()}, Đà Nẵng`; }
+                function validateAddr() { const badWard = !addrWard.value.trim() || !WARDS_94.includes(addrWard.value.trim()); const badDetail = !addrDetail.value.trim(); toggleErr(addrWard, badWard); toggleErr(addrDetail, badDetail); return !badWard && !badDetail; }
+                function toggleErr(el, show) { el.classList.toggle('border-red-500', show); const err = document.querySelector(`[data-err="${el.id}"]`); if (err) err.classList.toggle('hidden', !show); }
+
+                addressInput?.addEventListener('click', openAddressModal);
+                document.getElementById('addressOverlay')?.addEventListener('click', closeAddressModal);
+                addressClose?.addEventListener('click', closeAddressModal);
+                addressClear?.addEventListener('click', (e) => { e.preventDefault(); addrWard.value = ''; addrDetail.value = ''; toggleErr(addrWard, false); toggleErr(addrDetail, false); addrWard?.focus(); });
+                addressDone?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (!validateAddr()) { if (!addrWard.value.trim()) addrWard?.focus(); return; }
+                    save();
+                    addressInput.value = buildAddr();
+                    showFieldError(addressInput, false);
+                    // đổ hidden
+                    document.getElementById('provinceHidden').value = 'Đà Nẵng';
+                    document.getElementById('wardHidden').value = (addrWard.value || '').trim();
+                    document.getElementById('addrDetailHidden').value = (addrDetail.value || '').trim();
+                    closeAddressModal();
+                });
+
+                // ==== Validate & Submit ====
+                const form = detailForm;
+                if (form) {
+                    form.addEventListener('submit', function (e) {
+                        // địa chỉ -> hidden
+                        const wardH = document.getElementById('wardHidden');
+                        const detH = document.getElementById('addrDetailHidden');
+                        if (addressInput.dataset?.ward) wardH.value = addressInput.dataset.ward;
+                        if (addressInput.dataset?.detail) detH.value = addressInput.dataset.detail;
+
+                        // Validate
+                        const okParent = !!parentIdHidden.value;
+                        const okChild = !!childIdHidden.value;
+                        showFieldError(category, !okParent, 'Vui lòng chọn Danh mục.');
+                        showFieldError(subcategory, !okChild, 'Vui lòng chọn Danh mục con.');
+
+                        const okImages = filesState.length >= 1;
+                        showImageError(!okImages, 'Vui lòng thêm ít nhất 1 ảnh sản phẩm (tối đa 6).');
+                        if (!okImages) (strip.classList.contains('hidden') ? bigUpload : strip)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        const title = document.getElementById('titleInput');
+                        const desc = form.querySelector('textarea[name="description"]');
+                        const priceEl = document.getElementById('priceInput');
+                        const addressEl = document.getElementById('addressInput');
+
+                        showFieldError(title, !title.value.trim(), 'Vui lòng nhập tiêu đề.');
+
+                        const isFree = !!document.getElementById('freeCheckbox')?.checked;
+                        document.getElementById('isFreeHidden').value = isFree ? '1' : '0';
+
+                        const digits = (priceEl.value || '').replace(/\D/g, '');
+                        const priceNum = digits ? Number(digits) : 0;
+                        showFieldError(priceEl, !isFree && !(priceNum > 0), 'Vui lòng nhập Giá bán hợp lệ.');
+
+                        showFieldError(desc, !desc.value.trim(), 'Vui lòng nhập Mô tả chi tiết.');
+                        const okAddress = !!(addressEl.value && addressEl.dataset.ward && addressEl.dataset.detail);
+                        showFieldError(addressEl, !okAddress, 'Vui lòng nhập Địa chỉ.');
+
+                        // Đồng bộ meta ảnh trước khi submit
+                        syncImageMetaHidden();
+
+                        // ✅ Chuẩn hoá giá gửi lên server
+                        if (isFree) {
+                            priceEl.readOnly = true; // vẫn submit
+                            priceEl.value = '0';
+                        } else {
+                            priceEl.readOnly = false;
+                            priceEl.value = digits || '';
+                        }
+
+                        const allOk = okParent && okChild && okImages && title.value.trim() &&
+                            (isFree || priceNum > 0) && desc.value.trim() && okAddress;
+                        if (!allOk) { e.preventDefault(); return; }
+                    });
+                }
+
+                // Khởi tạo UI
+                renderStrip();
+                updateUploaderState();
+
+                // ========== Helpers ==========
+                function toggleDetailBlocksPublic() { toggleDetailBlocks(); }
+                function resetWholePage() {
+                    // reset select
+                    category.value = '';
+                    subcategory.innerHTML = '<option value="">-- Chọn danh mục con --</option>';
+                    subcatWrap.classList.add('hidden');
+                    parentIdHidden.value = ''; childIdHidden.value = '';
+
+                    // reset ảnh
+                    filesState.forEach(i => URL.revokeObjectURL(i.url));
+                    filesState = [];
+                    renderStrip();
+
+                    // reset form fields
+                    document.getElementById('titleInput').value = '';
+                    document.querySelector('input[name="type"][value="USED"]').checked = true;
+                    document.querySelector('input[name="origin"]').value = '';
+                    document.querySelector('input[name="material"]').value = '';
+                    document.querySelector('input[name="color"]').value = '';
+                    document.querySelector('input[name="accessories"]').value = '';
+                    const freeCheckbox = document.getElementById('freeCheckbox');
+                    const priceInput = document.getElementById('priceInput');
+                    const isFreeHidden = document.getElementById('isFreeHidden');
+                    freeCheckbox.checked = false; isFreeHidden.value = '0';
+                    priceInput.readOnly = false; priceInput.classList.remove('bg-gray-100'); priceInput.value = '';
+                    document.querySelector('textarea[name="description"]').value = '';
+                    addressInput.value = ''; addressInput.dataset.ward = ''; addressInput.dataset.detail = '';
+                    document.getElementById('wardHidden').value = ''; document.getElementById('addrDetailHidden').value = '';
+
+                    // hiển thị lại intro
+                    detailForm.classList.add('hidden');
+                    postFooter.classList.add('hidden');
+                    introBlock.classList.remove('hidden');
+                    introText.classList.remove('hidden');
+                    updateUploaderState();
+                }
+
+                // expose để dùng lại nếu cần
+                window.__dangbaiReset = resetWholePage;
+            }
+        })();
+    </script>
+
+    <!-- JS Header dropdown -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = { menuBtn: 'menuDropdown', favBtn: 'favDropdown', notiBtn: 'notiDropdown', avatarBtn: 'dropdownMenu' };
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+            btn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+                Object.values(dropdowns).forEach(id => document.getElementById(id)?.classList.add('hidden'));
+                if (isOpen) { menu.classList.add('hidden'); overlay.classList.add('hidden'); }
+                else { menu.classList.remove('hidden'); overlay.classList.remove('hidden'); }
+            });
+        });
+        overlay?.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id => document.getElementById(id)?.classList.add('hidden'));
+        });
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId => document.getElementById(btnId)?.contains(e.target))) {
+                overlay?.classList.add('hidden');
+                Object.values(dropdowns).forEach(id => document.getElementById(id)?.classList.add('hidden'));
+            }
+        });
+
+        // JS xử lý đăng xuất
+        (() => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('logoutConfirm');
+            const btnOK = document.getElementById('logoutSubmit');
+            const btnNO = document.getElementById('logoutCancel');
+
+            let targetForm = null; // form sẽ được submit khi bấm "Có"
+
+            function openModal(form) {
+                targetForm = form;
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+            function closeModal() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                targetForm = null;
+            }
+
+            // Bắt các nút logout
+            document.querySelectorAll('.js-logout-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    if (!form) return;
+                    openModal(form);
+                });
+            });
+
+            // Nút "Không"
+            btnNO.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            // Nút "Có"
+            btnOK.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    // tránh submit đôi
+                    btnOK.disabled = true;
+                    targetForm.submit();
+                } else {
+                    closeModal();
+                }
+            });
+
+            // Click ra ngoài hộp => đóng
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            overlay.addEventListener('click', closeModal);
+        })();
+
+        // Hàm lấy CSRF token
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                return '_csrf=' + encodeURIComponent(csrfToken.getAttribute('content'));
+            }
+            return '';
+        }
+    </script>
+
+    <script>
+        // ==== Modal Xem trước bài đăng (gallery trái, info phải) ====
+        const previewBtn = document.getElementById('previewBtn');
+        const previewModal = document.getElementById('previewModal');
+        const previewClose = document.getElementById('previewClose');
+
+        const previewImage = document.getElementById('previewImage');
+        const previewThumbs = document.getElementById('previewThumbs');
+        const previewCounter = document.getElementById('previewCounter');
+
+        const prevImageBtn = document.getElementById('prevImageBtn');
+        const nextImageBtn = document.getElementById('nextImageBtn');
+
+        const previewTitle = document.getElementById('previewTitle');
+        const previewType = document.getElementById('previewType');
+        const previewPrice = document.getElementById('previewPrice');
+        const previewDesc = document.getElementById('previewDesc');
+        const previewAddr = document.getElementById('previewAddr');
+
+        let previewImages = [];
+        let currentIndex = 0;
+
+        function gatherPreviewData() {
+            // ảnh từ strip đã chọn
+            const imgs = Array.from(document.querySelectorAll('#thumbList img')).map(i => i.src);
+            previewImages = imgs.length ? imgs : ['/image/card/image.png'];
+            currentIndex = 0;
+
+            // text
+            const name = document.getElementById('titleInput')?.value?.trim() || '(Chưa nhập tiêu đề)';
+            const typeTx = document.querySelector('input[name="type"]:checked')?.nextElementSibling?.textContent || 'Đã sử dụng';
+            const isFree = document.getElementById('freeCheckbox')?.checked;
+            const priceRaw = document.getElementById('priceInput')?.value?.trim() || '0';
+            const priceTx = isFree ? 'Miễn phí' : (priceRaw ? `${priceRaw}đ` : 'Liên hệ');
+            const desc = document.getElementById('descInput')?.value?.trim() || '(Chưa có mô tả)';
+            const ward = document.getElementById('wardHidden')?.value || '';
+            const addr = document.getElementById('addrDetailHidden')?.value || '';
+            const prov = document.getElementById('provinceHidden')?.value || '';
+            const fullAddr = [addr, ward, prov].filter(Boolean).join(', ');
+
+            previewTitle.textContent = name;
+            previewType.textContent = typeTx;
+            previewPrice.textContent = priceTx;
+            previewDesc.textContent = desc;
+            previewAddr.textContent = fullAddr || 'Đà Nẵng';
+        }
+
+        function renderMain() {
+            previewImage.src = previewImages[currentIndex];
+            previewCounter.textContent = `${currentIndex + 1}/${previewImages.length}`;
+            toggleNavButtons();
+            setActiveThumb();
+        }
+
+        function renderThumbs() {
+            previewThumbs.innerHTML = '';
+            previewImages.forEach((src, idx) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'relative flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border';
+                b.innerHTML =
+                    `<img src="${src}" class="w-full h-full object-cover pointer-events-none" alt="">
+       <span class="absolute inset-0 ring-2 ring-red-500 rounded-lg hidden"></span>`;
+                b.addEventListener('click', () => { currentIndex = idx; renderMain(); });
+                previewThumbs.appendChild(b);
+            });
+            setActiveThumb();
+        }
+
+        function setActiveThumb() {
+            const items = previewThumbs.querySelectorAll('button');
+            items.forEach((el, i) => {
+                el.classList.toggle('border-red-400', i === currentIndex);
+                const ring = el.querySelector('span');
+                if (ring) ring.classList.toggle('hidden', i !== currentIndex);
+            });
+        }
+
+        function toggleNavButtons() {
+            const hide = previewImages.length <= 1;
+            prevImageBtn.classList.toggle('hidden', hide);
+            nextImageBtn.classList.toggle('hidden', hide);
+        }
+
+        function showImage(idxDelta) {
+            if (!previewImages.length) return;
+            currentIndex = (currentIndex + idxDelta + previewImages.length) % previewImages.length;
+            renderMain();
+        }
+
+        function openPreviewModal() {
+            gatherPreviewData();
+            renderThumbs();
+            renderMain();
+
+            previewModal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closePreviewModal() {
+            previewModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        // events
+        previewBtn?.addEventListener('click', e => { e.preventDefault(); openPreviewModal(); });
+        previewClose?.addEventListener('click', closePreviewModal);
+        previewModal?.firstElementChild?.addEventListener('click', closePreviewModal); // click nền đen
+
+        prevImageBtn?.addEventListener('click', () => showImage(-1));
+        nextImageBtn?.addEventListener('click', () => showImage(+1));
+
+        // phím mũi tên
+        window.addEventListener('keydown', (e) => {
+            if (previewModal.classList.contains('hidden')) return;
+            if (e.key === 'ArrowRight') showImage(+1);
+            if (e.key === 'ArrowLeft') showImage(-1);
+        });
+
+    </script>
+
+    <script th:src="@{/js/favorite.js}"></script>
+
+</body>
+
+</html>

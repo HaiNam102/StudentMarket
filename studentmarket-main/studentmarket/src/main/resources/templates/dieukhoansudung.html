@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <base th:href="@{/}" />
+    <meta charset="utf-8" />
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .menu-parent:hover .menu-child {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+
+    <!-- Header -->
+    <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+    <!-- MAIN -->
+    <main class="pt-14 pb-10">
+        <div class="max-w-7xl mx-auto px-4 pt-9">
+
+            <!-- Phần trên: Hồ sơ (PROFILE) -->
+            <div th:replace="~{fragments/hosoprofile :: hosoprofile}"></div>
+
+            <!-- Main Container -->
+            <div class="flex flex-col md:flex-row gap-6">
+
+                <!-- Sidebar -->
+                <aside class="md:col-span-3">
+                    <nav class="bg-white rounded-2xl shadow divide-y top-24 w-[245px]">
+
+                        <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-tl-2xl rounded-tr-2xl"
+                            th:href="@{/tongquan}">
+                            <!-- Icon bằng ảnh -->
+                            <img th:src="@{/image/thongtintaikhoan/home.png}" alt="Tổng Quan"
+                                class="w-6 h-6 object-cover" />
+                            <!-- Nội dung -->
+                            <span class="text-gray-800 font-semibold">Tổng Quan</span>
+                        </a>
+
+                        <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/thongtintaikhoan}">
+                            <!-- Icon bằng ảnh -->
+                            <img th:src="@{/image/thongtintaikhoan/setting.png}" alt="Thông tin tài khoản"
+                                class="w-6 h-6 object-cover" />
+                            <!-- Nội dung -->
+                            <span class="text-gray-800 font-semibold">Thông tin tài khoản</span>
+                        </a>
+
+                        <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/quanlybaidang}">
+                            <!-- Icon bằng ảnh -->
+                            <img th:src="@{/image/thongtintaikhoan/edit.png}" alt="Quản lí bài đăng"
+                                class="w-6 h-6 object-cover" />
+                            <!-- Nội dung -->
+                            <span class="text-gray-800 font-semibold">Quản lý bài đăng</span>
+                        </a>
+
+                        <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/lichsugiaodich}">
+                            <!-- Icon bằng ảnh -->
+                            <img th:src="@{/image/thongtintaikhoan/file.png}" alt="Lịch sử giao dịch"
+                                class="w-6 h-6 object-cover" />
+                            <!-- Nội dung -->
+                            <span class="text-gray-800 font-semibold">Lịch sử giao dịch</span>
+                        </a>
+
+                        <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/tichluydiem}">
+                            <!-- Icon bằng ảnh -->
+                            <img th:src="@{/image/thongtintaikhoan/tichluy.png}" alt="Tích lũy điểm"
+                                class="w-6 h-6 object-cover" />
+                            <!-- Nội dung -->
+                            <span class="text-gray-800 font-semibold">Tích lũy điểm</span>
+                        </a>
+
+                        <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/danhgia}">
+                            <!-- Icon bằng ảnh -->
+                            <img th:src="@{/image/thongtintaikhoan/danhgia.png}" alt="Đánh giá"
+                                class="w-6 h-6 object-cover" />
+                            <!-- Nội dung -->
+                            <span class="text-gray-800 font-semibold">Đánh giá</span>
+                        </a>
+
+                        <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/gopy}">
+                            <!-- Icon bằng ảnh -->
+                            <img th:src="@{/image/thongtintaikhoan/gopy.png}" alt="Góp ý & hỗ trợ"
+                                class="w-6 h-6 object-cover" />
+                            <!-- Nội dung -->
+                            <span class="text-gray-800 font-semibold">Góp ý & hỗ trợ</span>
+                        </a>
+
+                        <a class="flex items-center gap-3 px-6 py-3 bg-red-50" th:href="@{/dieukhoansudung}">
+                            <!-- Icon bằng ảnh -->
+                            <img th:src="@{/image/thongtintaikhoan/dieukhoan-red.png}" alt="Điều khoản sử dụng"
+                                class="w-6 h-6 object-cover" />
+                            <!-- Nội dung -->
+                            <span class="text-red-600 font-semibold">Điều khoản sử dụng</span>
+                        </a>
+
+                        <form th:action="@{/logout}" method="post"
+                            class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-bl-2xl rounded-br-2xl">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="button" class="js-logout-trigger flex items-center gap-3 w-full text-left">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/dangxuat.png}" alt="Đăng xuất"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Đăng xuất</span>
+                            </button>
+                        </form>
+                    </nav>
+                </aside>
+
+                <!-- Nội dung chính: Điều khoản sử dụng -->
+                <section class="flex-1">
+                    <div class="bg-white rounded-2xl shadow p-6 w-[980px] mx-auto" id="activeBadgeBox"
+                        style="padding-top: 10px;">
+                        <div class="text-center">
+                            <p class="text-red-600 font-bold">Quy định chung STUDENT MARKET</p>
+                            <div class="h-0.5 w-80 bg-red-500 mx-auto rounded-full mt-2"></div>
+                        </div>
+
+                        <!-- Nội dung quy định -->
+                        <div class="mt-6 text-gray-800 text-sm leading-relaxed space-y-4">
+                            <div>
+                                <p class="font-bold">1. Nghiêm cấm đăng tải nội dung sai sự thật, lừa đảo.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Người dùng phải đảm bảo thông tin mình đăng tải là chính xác và không gây
+                                        hiểu lầm cho người khác.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">2. Nghiêm cấm hành vi quấy rối, xúc phạm.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Mọi hành vi quấy rối, xúc phạm đến người khác sẽ bị xử lý nghiêm.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">3. Bảo mật thông tin cá nhân.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Người dùng không được chia sẻ thông tin cá nhân của người khác mà không có
+                                        sự đồng ý.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">4. Tôn trọng bản quyền.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Không đăng tải nội dung vi phạm bản quyền, bao gồm hình ảnh, văn bản, video,
+                                        v.v.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">5. Tuân thủ các quy định pháp luật hiện hành.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Mọi hoạt động trên trang web phải tuân thủ pháp luật Việt Nam.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="bg-white rounded-2xl shadow p-6 w-[980px] mx-auto mt-6" id="activeBadgeBox"
+                        style="padding-top: 10px;">
+                        <div class="text-center">
+                            <p class="text-red-600 font-bold">Quy định của người đăng</p>
+                            <div class="h-0.5 w-64 bg-red-500 mx-auto rounded-full mt-2"></div>
+                        </div>
+                        <!-- Nội dung quy định -->
+                        <div class="mt-6 text-gray-800 text-sm leading-relaxed space-y-4">
+                            <div>
+                                <p class="font-bold">1. Thông tin chính xác.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Người đăng bài phải cung cấp thông tin đầy đủ và chính xác về đồ dùng đăng
+                                        tải.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">2. Hình ảnh rõ ràng.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Cần sử dụng hình ảnh thật của sản phẩm, không sử dụng hình ảnh trên mạng
+                                        hoặc không liên quan.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">3. Giá cả hợp lý.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Cần đưa ra mức giá hợp lý cho sản phẩm, tránh tình trạng "hét giá".</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">4. Đáp ứng yêu cầu liên hệ.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Người đăng bài phải sẵn sàng trả lời các câu hỏi và yêu cầu từ người nhận.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow p-6 w-[980px] mx-auto mt-6" id="activeBadgeBox"
+                        style="padding-top: 10px;">
+                        <div class="text-center">
+                            <p class="text-red-600 font-bold">Quy định của người nhận</p>
+                            <div class="h-0.5 w-64 bg-red-500 mx-auto rounded-full mt-2"></div>
+                        </div>
+                        <!-- Nội dung quy định -->
+                        <div class="mt-6 text-gray-800 text-sm leading-relaxed space-y-4">
+                            <div>
+                                <p class="font-bold">1. Kiểm tra thông tin.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Trước khi giao dịch, người nhận cần kiểm tra kỹ thông tin sản phẩm và người
+                                        bán.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">2. Giao dịch minh bạch.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Nên thực hiện giao dịch ở nơi công cộng và an toàn.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">3. Phản hồi sau giao dịch.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Người nhận nên đánh giá và phản hồi về trải nghiệm giao dịch để giúp cộng
+                                        đồng.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p class="font-bold">4. Báo cáo vi phạm.</p>
+                                <ul class="list-disc list-inside ml-4">
+                                    <li>Nếu phát hiện hành vi lừa đảo hoặc vi phạm quy định, người nhận cần báo cáo
+                                        ngay cho quản trị viên.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay cho modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <!-- Modal xác nhận đăng xuất -->
+    <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- JS của phần Header không được xóa -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = {
+            menuBtn: 'menuDropdown',
+            favBtn: 'favDropdown',
+            notiBtn: 'notiDropdown',
+            avatarBtn: 'dropdownMenu'
+        };
+
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    overlay.classList.add('hidden');
+                } else {
+                    menu.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id =>
+                document.getElementById(id).classList.add('hidden')
+            );
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId =>
+                document.getElementById(btnId).contains(e.target)
+            )) {
+                overlay.classList.add('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+            }
+        });
+
+        // JS xử lý đăng xuất
+        (() => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('logoutConfirm');
+            const btnOK = document.getElementById('logoutSubmit');
+            const btnNO = document.getElementById('logoutCancel');
+
+            let targetForm = null; // form sẽ được submit khi bấm "Có"
+
+            function openModal(form) {
+                targetForm = form;
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+            function closeModal() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                targetForm = null;
+            }
+
+            // Bắt các nút logout
+            document.querySelectorAll('.js-logout-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    if (!form) return;
+                    openModal(form);
+                });
+            });
+
+            // Nút "Không"
+            btnNO.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            // Nút "Có"
+            btnOK.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    // tránh submit đôi
+                    btnOK.disabled = true;
+                    targetForm.submit();
+                } else {
+                    closeModal();
+                }
+            });
+
+            // Click ra ngoài hộp => đóng
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            overlay.addEventListener('click', closeModal);
+        })();
+
+        // Hàm lấy CSRF token
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                return '_csrf=' + encodeURIComponent(csrfToken.getAttribute('content'));
+            }
+            return '';
+        }
+    </script>
+
+    <script th:src="@{/js/favorite.js}"></script>
+    
+</body>
+
+</html>

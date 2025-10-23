@@ -1,0 +1,145 @@
+name: Discord Notify
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, closed, reopened, synchronize, edited, assigned, unassigned]
+  issues:
+    types: [opened, closed, reopened, edited, labeled, unlabeled, assigned, unassigned]
+  release:
+    types: [published, edited, released]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notifications to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EVENT_NAME="${{ github.event_name }}"
+          ACTION="${{ github.event.action }}"
+          ACTOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          URL="https://github.com/${{ github.repository }}"
+          AVATAR="https://github.com/$ACTOR.png"
+
+          TITLE="GitHub Notification"
+          LINK="$URL"
+          COLOR=5814783
+          MSG=""
+
+          get_color() {
+            case "$1" in
+              opened) echo 3066993 ;;
+              closed) echo 15158332 ;;
+              reopened) echo 15844367 ;;
+              edited) echo 3447003 ;;
+              labeled|unlabeled|assigned|unassigned) echo 10181046 ;;
+              synchronize) echo 3447003 ;;
+              published|released) echo 3447003 ;;
+              *) echo 5814783 ;;
+            esac
+          }
+
+          get_emoji() {
+            case "$1" in
+              opened) echo "🟢" ;;
+              closed) echo "🔴" ;;
+              reopened) echo "🟠" ;;
+              edited) echo "✏️" ;;
+              labeled) echo "🏷️" ;;
+              unlabeled) echo "❌🏷️" ;;
+              assigned) echo "👤" ;;
+              unassigned) echo "👥" ;;
+              synchronize) echo "🔄" ;;
+              published|released) echo "📦" ;;
+              *) echo "🔔" ;;
+            esac
+          }
+
+          if [ "$EVENT_NAME" = "push" ]; then
+            BRANCH="${{ github.ref_name }}"
+            COMMITS=$(jq -r '.commits[] | "- \(.message) ([\(.id[0:7])](\(.url))) by **\(.author.name)**"' $GITHUB_EVENT_PATH)
+            TITLE="📌 Push to $BRANCH"
+            LINK="$URL/tree/$BRANCH"
+            MSG="Repo: [$REPO]($URL)\nBranch: **$BRANCH**\nBy: **$ACTOR**\n\n**Commits:**\n$COMMITS"
+            COLOR=3066993
+
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_URL="${{ github.event.pull_request.html_url }}"
+            BRANCH="${{ github.event.pull_request.head.ref }}"
+            BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            ASSIGNEES=$(jq -r '.pull_request.assignees[]?.login' $GITHUB_EVENT_PATH | xargs -I{} echo "@{} " )
+
+            # Lấy danh sách file và tính summary
+            FILES_JSON=$(gh api repos/$REPO/pulls/$PR_NUMBER/files --paginate)
+            FILES=$(echo "$FILES_JSON" | jq -r '.[].filename' | head -n 10)
+            if [ -n "$FILES" ]; then
+              FILE_LIST=$(echo "$FILES" | sed 's/^/- `/; s/$/`/' | paste -sd '\n' -)
+            else
+              FILE_LIST="(No file changes)"
+            fi
+
+            TOTAL_FILES=$(echo "$FILES_JSON" | jq length)
+            TOTAL_ADDS=$(echo "$FILES_JSON" | jq '[.[].additions] | add')
+            TOTAL_DELS=$(echo "$FILES_JSON" | jq '[.[].deletions] | add')
+
+            EMOJI=$(get_emoji "$ACTION")
+            TITLE="$EMOJI Pull Request: $PR_TITLE"
+            LINK="$PR_URL"
+            MSG="By: **$ACTOR** | Action: **$ACTION**\nFrom: **$BRANCH** → **$BASE_BRANCH**\nAssignees: ${ASSIGNEES:-None}\n\n**Summary:** $TOTAL_FILES files changed, +$TOTAL_ADDS / -$TOTAL_DELS\n\n**Changed Files (max 10):**\n$FILE_LIST"
+            COLOR=$(get_color "$ACTION")
+
+          elif [ "$EVENT_NAME" = "issues" ]; then
+            ISSUE_TITLE="${{ github.event.issue.title }}"
+            ISSUE_URL="${{ github.event.issue.html_url }}"
+            LABELS=$(jq -r '.issue.labels[]?.name' $GITHUB_EVENT_PATH | xargs -I{} echo "\`{}\` " )
+            ASSIGNEES=$(jq -r '.issue.assignees[]?.login' $GITHUB_EVENT_PATH | xargs -I{} echo "@{} " )
+            EMOJI=$(get_emoji "$ACTION")
+            TITLE="$EMOJI Issue: $ISSUE_TITLE"
+            LINK="$ISSUE_URL"
+            MSG="By: **$ACTOR** | Action: **$ACTION**\nLabels: ${LABELS:-None}\nAssignees: ${ASSIGNEES:-None}"
+            COLOR=$(get_color "$ACTION")
+
+          elif [ "$EVENT_NAME" = "release" ]; then
+            REL_NAME="${{ github.event.release.name }}"
+            REL_URL="${{ github.event.release.html_url }}"
+            EMOJI=$(get_emoji "$ACTION")
+            TITLE="$EMOJI Release: $REL_NAME"
+            LINK="$REL_URL"
+            MSG="By: **$ACTOR** | Action: **$ACTION**"
+            COLOR=$(get_color "$ACTION")
+
+          else
+            EMOJI=$(get_emoji "$ACTION")
+            TITLE="$EMOJI New Event: $EVENT_NAME"
+            LINK="$URL"
+            MSG="By: **$ACTOR** | Action: **$ACTION**"
+            COLOR=3447003
+          fi
+
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          curl -H "Content-Type: application/json" \
+               -d "{
+                 \"embeds\": [{
+                   \"title\": \"$TITLE\",
+                   \"url\": \"$LINK\",
+                   \"description\": \"$MSG\",
+                   \"color\": $COLOR,
+                   \"author\": {
+                     \"name\": \"$ACTOR\",
+                     \"url\": \"https://github.com/$ACTOR\",
+                     \"icon_url\": \"$AVATAR\"
+                   },
+                   \"timestamp\": \"$TIMESTAMP\"
+                 }]
+               }" \
+               $DISCORD_WEBHOOK
+

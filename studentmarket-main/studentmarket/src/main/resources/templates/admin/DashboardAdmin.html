@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Market – Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f7f6fb;
+      --surface: #fff;
+      --line: #e9e6ef;
+      --text: #1f1c2e;
+      --muted: #6b6780;
+      --primary: #7c4dff;
+      --primary-soft: #efe6ff;
+      --hover: #f6f5fb;
+      --hover-strong: #ece8ff;
+      --good: #12b886;
+      --bad: #e74c3c;
+      --radius: 16px;
+      --sidebar-w: 260px;
+      --gutter: 36px;
+      --block-gap: 24px;
+    }
+    * { box-sizing: border-box }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial
+    }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      border-top-right-radius: 18px;
+      border-bottom-right-radius: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.05);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 20;
+    }
+    .sb-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px }
+    .sb-logo {
+      width: 48px; height: 44px;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: grid; place-items: center;
+      font-weight: 800; font-size: 20px
+    }
+    .sb-brand { font-weight: 700; color: #4a4660 }
+    .sb-nav { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .sb-item {
+      display: flex; align-items: center; gap: 12px;
+      height: 56px; border-radius: 14px; padding: 0 14px;
+      color: #3b3652; cursor: pointer; font-size: 15px; font-weight: 600; letter-spacing: .2px;
+      transition: background .15s ease, color .15s ease, transform .03s ease;
+      outline: none; border: 1px solid transparent;
+      text-decoration: none;
+    }
+    .sb-ico { width: 28px; min-width: 28px; text-align: center; font-size: 20px; line-height: 1; transform: translateY(-1px); }
+    .sb-item:hover { background: var(--hover-strong); border-color: #e2dcff; }
+    .sb-item:active { transform: scale(.99); }
+    .sb-item.active {
+      background: var(--primary-soft); color: var(--primary); border-color: #dacbff;
+      box-shadow: 0 0 0 2px rgba(124,77,255,.10) inset;
+    }
+    .sb-logout { margin-top: auto; }
+    .wrap {
+      width: 100%;
+      margin: 0;
+      padding-left: calc(var(--sidebar-w) + var(--gutter));
+      padding-right: 32px;
+      padding-top: 28px;
+      padding-bottom: 40px;
+    }
+    .page-title { font-weight: 800; font-size: 24px; margin: 6px 0 var(--block-gap) }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 10px rgba(0,0,0,.05);
+    }
+    .card-hd { padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 800; font-size: 14px }
+    .card-bd { padding: 14px 16px }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: var(--block-gap);
+      margin-bottom: var(--block-gap);
+    }
+    .kcard { padding: 18px 20px; min-height: 96px; display: flex; flex-direction: column; justify-content: center }
+    .k-title { font-size: 13px; color: var(--muted); margin-bottom: 6px }
+    .k-row { display: flex; align-items: baseline; gap: 10px }
+    .k-value { font-size: 24px; font-weight: 800 }
+    .k-trend { font-size: 12px; color: var(--good) }
+    .k-trend.down { color: var(--bad) }
+    .grid-12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--block-gap); }
+    .span-8 { grid-column: span 8 }
+    .span-4 { grid-column: span 4 }
+    .btn { padding: 6px 10px; font-size: 12px; border-radius: 8px; border: 1px solid var(--line); background: #fff; cursor: pointer }
+    .b-ok { background:#ecfdf5; color:#047857; border-color:#a7f3d0 }
+    .b-info{ background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe }
+    .b-bad { background:#fff1f2; color:#be123c; border-color:#fecdd3 }
+    .prod { display:flex; align-items:center; gap:10px }
+    .thumb{ width:36px; height:36px; border-radius:8px; object-fit:cover; border:1px solid var(--line) }
+    .badge { font-size: 12px; border-radius: 8px; padding: 4px 8px; display: inline-block; border: 1px solid var(--line); background: #f7f6fb }
+    table { width: 100%; border-collapse: collapse; table-layout: auto }
+    thead th, tbody td { padding: 16px 18px; vertical-align: middle }
+    thead th {
+      font-weight: 700; font-size: 13px; text-align: left; color: #4b465c;
+      background: #fbfaff; border-bottom: 1px solid var(--line)
+    }
+    tbody td { border-bottom: 1px solid var(--line) }
+    tr:last-child td { border-bottom: none }
+    tbody tr:hover td { background: #ececf4; }
+    @media (max-width:1200px) {
+      .span-8, .span-4 { grid-column: 1/-1 }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">SM</div>
+      <div class="sb-brand">Student Market</div>
+    </div>
+    <ul class="sb-nav">
+      <a href="DashboardAdmin.html" class="sb-item active"><span class="sb-ico">🏠</span><span>Dashboard</span></a>
+      <a href="UserAdmin.html" class="sb-item"><span class="sb-ico">👤</span><span>Người dùng</span></a>
+      <a href="TindangAdmin.html" class="sb-item"><span class="sb-ico">📦</span><span>Tin đăng</span></a>
+      <a href="#" class="sb-item sb-logout"><span class="sb-ico">⚙️</span><span>Đăng Xuất</span></a>
+    </ul>
+  </aside>
+
+  <div class="wrap">
+    <h2 class="page-title">Dashboard</h2>
+    
+    <section class="kpis">
+      <div class="card kcard">
+        <div class="k-title">Sales</div>
+        <div class="k-row"><span class="k-value">$12,099</span><span class="k-trend">▲ 5.9%</span></div>
+      </div>
+      <div class="card kcard">
+        <div class="k-title">New Customer</div>
+        <div class="k-row"><span class="k-value">1,245</span><span class="k-trend">▲ 10%</span></div>
+      </div>
+      <div class="card kcard">
+        <div class="k-title">Visitor</div>
+        <div class="k-row"><span class="k-value">13,000</span><span class="k-trend">▲ 9.5%</span></div>
+      </div>
+      <div class="card kcard">
+        <div class="k-title">Total Orders</div>
+        <div class="k-row"><span class="k-value">1,340</span><span class="k-trend down">▼ 4%</span></div>
+      </div>
+    </section>
+
+    <section class="grid-12">
+      <div class="card span-8">
+        <div class="card-hd">Recent Orders</div>
+        <div class="card-bd" style="overflow:auto; max-height:420px">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:46px">#</th>
+                <th>Sản phẩm</th>
+                <th>ID</th>
+                <th>SL</th>
+                <th>Giá</th>
+                <th>Thời gian</th>
+                <th>Khách hàng</th>
+                <th>Trạng thái</th>
+                <th style="text-align:right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="order-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card span-4">
+        <div class="card-hd">Revenue by Category</div>
+        <div class="card-bd" style="display:flex;align-items:center;justify-content:center;min-height:420px">
+          <canvas id="revByCat" height="260"></canvas>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const orders = [
+      {id:1,name:'Product #1',thumb:'https://picsum.photos/seed/p1/100',pid:'uX00001',qty:20,price:'$80.00', time:'27-08-2018 14:47:27',customer:'Patricia J. King',status:'In Transit'},
+      {id:2,name:'Product #2',thumb:'https://picsum.photos/seed/p2/100',pid:'uX00002',qty:12,price:'$320.00',time:'26-08-2018 10:21:10',customer:'Rachel J. Wicker', status:'Delivered'},
+      {id:3,name:'Product #3',thumb:'https://picsum.photos/seed/p3/100',pid:'uX00003',qty:23,price:'$560.00',time:'26-08-2018 09:17:02',customer:'Michael E. Ledford',status:'Delivered'},
+      {id:4,name:'Product #4',thumb:'https://picsum.photos/seed/p4/100',pid:'uX00004',qty:34,price:'$240.00',time:'25-08-2018 09:05:15',customer:'Michael E. Ledford',status:'Delivered'},
+    ];
+
+    const badge = (s) => {
+      const t = s.toLowerCase();
+      const cls = t.includes('deliver') ? 'b-ok' : t.includes('transit') ? 'b-info' : 'b-bad';
+      return `<span class="badge ${cls}">${s}</span>`;
+    };
+
+    function renderOrders() {
+      const orderBody = document.getElementById('order-body');
+      orderBody.innerHTML = '';
+      orders.forEach(o => {
+        orderBody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td>${o.id}</td>
+            <td>
+              <div class="prod">
+                <img class="thumb" src="${o.thumb}" alt="${o.name}" />
+                <span>${o.name}</span>
+              </div>
+            </td>
+            <td>${o.pid}</td>
+            <td>${o.qty}</td>
+            <td>${o.price}</td>
+            <td>${o.time}</td>
+            <td>${o.customer}</td>
+            <td>${badge(o.status)}</td>
+            <td style="text-align:right"><button class="btn">View</button></td>
+          </tr>
+        `);
+      });
+    }
+
+    function initRevenueChart() {
+      const el = document.getElementById('revByCat');
+      new Chart(el, {
+        type: 'doughnut',
+        data: {
+          labels: ['Electronics','Fashion','Home & Garden','Toys','Books'],
+          datasets: [{ data: [34,22,18,14,12], borderWidth: 0 }]
+        },
+        options: {
+          responsive: true,
+          cutout: '62%',
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12 } },
+            tooltip: { enabled: true }
+          }
+        }
+      });
+    }
+
+    renderOrders();
+    initRevenueChart();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .menu-parent:hover .menu-child {
+            display: block;
+        }
+
+        /* Thu nhỏ & làm đẹp scrollbar cho modal danh sách */
+        #reqListBody {
+            scrollbar-width: thin;
+            /* Firefox */
+            scrollbar-color: #e5e7eb transparent;
+        }
+
+        #reqListBody::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        #reqListBody::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #reqListBody::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 9999px;
+        }
+
+        #reqListBody::-webkit-scrollbar-thumb:hover {
+            background: #d1d5db;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+
+    <!-- Header -->
+    <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+    <!-- MAIN -->
+    <main class="pt-14 pb-10">
+        <div class="max-w-7xl mx-auto px-4 pt-9">
+
+            <!-- Phần trên: Hồ sơ (PROFILE) -->
+            <div th:replace="~{fragments/hosoprofile :: hosoprofile}"></div>
+
+            <!-- Layout 2 cột -->
+            <div class="flex flex-col md:flex-row gap-6">
+
+                <!-- Main Container -->
+                <div class="flex flex-col md:flex-row gap-6">
+
+                    <!-- Sidebar -->
+                    <aside class="md:col-span-3">
+                        <nav class="bg-white rounded-2xl shadow divide-y top-24 w-[245px]">
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-tl-2xl rounded-tr-2xl"
+                                th:href="@{/tongquan}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/home.png}" alt="Tổng Quan"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Tổng Quan</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
+                                th:href="@{/thongtintaikhoan}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/setting.png}" alt="Thông tin tài khoản"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Thông tin tài khoản</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 bg-red-50" th:href="@{/quanlybaidang}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/edit-red.png}" alt="Quản lí bài đăng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-red-600 font-semibold">Quản lý bài đăng</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/lichsugiaodich}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/file.png}" alt="Lịch sử giao dịch"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Lịch sử giao dịch</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/tichluydiem}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/tichluy.png}" alt="Tích lũy điểm"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Tích lũy điểm</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/danhgia}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/danhgia.png}" alt="Đánh giá"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Đánh giá</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/gopy}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/gopy.png}" alt="Góp ý & hỗ trợ"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Góp ý & hỗ trợ</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/dieukhoansudung}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/dieukhoan.png}" alt="Điều khoản sử dụng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Điều khoản sử dụng</span>
+                            </a>
+
+                            <form th:action="@{/logout}" method="post"
+                                class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-bl-2xl rounded-br-2xl">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="button"
+                                    class="js-logout-trigger flex items-center gap-3 w-full text-left">
+                                    <!-- Icon bằng ảnh -->
+                                    <img th:src="@{/image/thongtintaikhoan/dangxuat.png}" alt="Đăng xuất"
+                                        class="w-6 h-6 object-cover" />
+                                    <!-- Nội dung -->
+                                    <span class="text-gray-800 font-semibold">Đăng xuất</span>
+                                </button>
+                            </form>
+                        </nav>
+                    </aside>
+
+                    <!-- QUẢN LÝ BÀI ĐĂNG -->
+                    <section class="flex-1">
+                        <div class="bg-white rounded-2xl shadow px-6 w-[980px]" style="padding-bottom: 24px;">
+                            <!-- Tabs + Search -->
+                            <div class="w-full">
+                                <!-- Tabs -->
+                                <div id="lsTabs"
+                                    class="grid grid-cols-6 text-sm font-semibold text-center border-b border-gray-200">
+                                    <button data-tab="dang-hien-thi"
+                                        class="tab-btn py-3 border-b-2 border-red-500 text-red-600">
+                                        Đang hiển thị <span class="ml-1">(3)</span>
+                                    </button>
+                                    <button data-tab="hoan-thanh"
+                                        class="tab-btn py-3 border-b-2 border-transparent text-gray-600">
+                                        Hoàn thành <span class="ml-1">(1)</span>
+                                    </button>
+                                    <button data-tab="het-han"
+                                        class="tab-btn py-3 border-b-2 border-transparent text-gray-600">
+                                        Hết hạn <span class="ml-1">(1)</span>
+                                    </button>
+                                    <button data-tab="ban-nhap"
+                                        class="tab-btn py-3 border-b-2 border-transparent text-gray-600">
+                                        Bản nháp <span class="ml-1">(1)</span>
+                                    </button>
+                                    <button data-tab="cho-duyet"
+                                        class="tab-btn py-3 border-b-2 border-transparent text-gray-600">
+                                        Chờ duyệt <span class="ml-1">(1)</span>
+                                    </button>
+                                    <button data-tab="bi-tu-choi"
+                                        class="tab-btn py-3 border-b-2 border-transparent text-gray-600">
+                                        Bị từ chối <span class="ml-1">(1)</span>
+                                    </button>
+                                </div>
+
+
+                                <!-- Search dưới tabs -->
+                                <div class="flex justify-end mt-3">
+                                    <div class="relative w-80 max-w-full">
+                                        <input id="lsSearch" type="text" placeholder="Tìm bài đăng của bạn..."
+                                            class="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PANELS -->
+                            <div class="mt-4">
+                                <!-- ĐANG HIỂN THỊ -->
+                                <div data-post-panel="dang-hien-thi" class="panel-grid space-y-5">
+                                    <!-- Card 1 -->
+                                    <div
+                                        class="request-card group bg-white rounded-xl shadow-sm border-2 border-1-gray-100 p-3 md:p-4 flex items-start gap-4 md:gap-5">
+                                        <!-- Ảnh -->
+                                        <div
+                                            class="w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-lg overflow-hidden ring-1 ring-gray-100 ">
+                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                                alt="Nồi cơm Delites" class="w-full h-full object-cover">
+                                        </div>
+
+                                        <!-- Thông tin chính -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <h3 class="text-base font-bold text-gray-900 truncate">Nồi cơm
+                                                        Delites</h3>
+                                                    <p class="text-sm font-bold text-green-600 mt-0.5">Miễn phí</p>
+
+                                                    <div class="mt-0.5 text-xs md:text-sm text-gray-600 space-y-0.5">
+                                                        <p class="text-sm text-gray-600 mt-0.5">
+                                                            Phường Hòa Khê, Quận Thanh Khê, Đà Nẵng
+                                                        </p>
+
+                                                        <!-- Ngày đăng + hết hạn cạnh nhau -->
+                                                        <div
+                                                            class="mt-0.5 text-xs md:text-sm text-gray-600 flex flex-wrap gap-x-6 gap-y-1">
+                                                            <p>Ngày đăng: <span
+                                                                    class="font-medium text-gray-900">14/10/2025</span>
+                                                            </p>
+                                                            <p>Ngày hết hạn: <span
+                                                                    class="font-medium text-gray-900">14/11/2025</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Ghi chú (bubble) -->
+                                                <button
+                                                    class="btn-view-seller inline-flex items-center gap-3 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-black font-semibold hover:bg-gray-200 transition-colors duration-200"
+                                                    title="Xem thông tin người bán">
+                                                    <i class="fa-regular fa-user text-[16px]"></i>
+                                                    Xem thông tin người nhận
+                                                </button>
+
+                                                <!-- MODAL: THÔNG TIN NGƯỜI NHẬN -->
+                                                <div id="sellerInfoModal"
+                                                    class="hidden fixed inset-0 z-[100] flex items-center justify-center">
+                                                    <!-- Overlay -->
+                                                    <div id="sellerInfoOverlay" class="absolute inset-0 bg-black/50">
+                                                    </div>
+
+                                                    <!-- Box -->
+                                                    <div class="relative z-10 w-[620px] max-w-[94vw]">
+                                                        <div
+                                                            class="bg-white rounded-2xl shadow-xl overflow-hidden relative">
+                                                            <!-- Button đóng -->
+                                                            <button id="sellerInfoClose"
+                                                                class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100">
+                                                                <i class="fa-solid fa-xmark text-lg text-gray-600"></i>
+                                                            </button>
+
+                                                            <!-- Header -->
+                                                            <div class="px-6 pt-5">
+                                                                <h3 class="text-center text-red-600 font-bold">THÔNG TIN
+                                                                    NGƯỜI NHẬN</h3>
+                                                                <div
+                                                                    class="mx-auto mt-2 h-0.5 w-64 bg-red-500 rounded-full">
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Content -->
+                                                            <div class="px-6 pb-6 pt-4">
+                                                                <div class="rounded-xl border bg-white p-5 shadow-sm">
+                                                                    <div class="flex gap-4">
+                                                                        <img src="image/header_user/avartar.jpg"
+                                                                            class="w-14 h-14 rounded-full object-cover border"
+                                                                            alt="">
+                                                                        <div class="flex-1">
+                                                                            <p class="font-semibold text-gray-900">Trần
+                                                                                Minh Quang</p>
+                                                                            <p class="text-sm text-gray-700">
+                                                                                <span
+                                                                                    class="font-semibold text-yellow-500">4.7</span>
+                                                                                <span class="text-gray-500">(14 đánh
+                                                                                    giá)</span>
+                                                                            </p>
+                                                                            <p class="text-sm text-gray-500">14 giao
+                                                                                dịch</p>
+
+                                                                            <!-- Ghi chú (bubble) -->
+                                                                            <div class="mt-2 relative max-w-[100%]">
+                                                                                <div
+                                                                                    class="rounded-xl bg-gray-100 p-3 shadow-inner">
+                                                                                    <p
+                                                                                        class="text-[13px] md:text-sm text-gray-800 leading-relaxed">
+                                                                                        “Nồi mình bị hư nên mình thực sự
+                                                                                        cần món đồ này để nấu ăn trong
+                                                                                        phòng trọ, cảm ơn bạn rất
+                                                                                        nhiều…”
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="mt-4">
+                                                                        <p class="font-semibold text-gray-900 mb-2">
+                                                                            Thông tin liên hệ:</p>
+                                                                        <!-- Email -->
+                                                                        <div
+                                                                            class="py-3 flex items-center justify-between border-t">
+                                                                            <span class="text-gray-600">Email:</span>
+                                                                            <span
+                                                                                class="text-gray-900 font-semibold">tranminhquang@dtu.edu.vn</span>
+                                                                        </div>
+                                                                        <!-- Phone -->
+                                                                        <div
+                                                                            class="py-3 flex items-center justify-between border-t">
+                                                                            <span class="text-gray-600">Số điện
+                                                                                thoại:</span>
+                                                                            <span
+                                                                                class="text-gray-900 font-semibold">0986123456</span>
+                                                                        </div>
+                                                                        <!-- Address -->
+                                                                        <div
+                                                                            class="py-3 flex items-center justify-between border-t">
+                                                                            <span class="text-gray-600">Địa chỉ:</span>
+                                                                            <span
+                                                                                class="text-gray-900 text-right font-semibold">
+                                                                                370 Phan Đăng Lưu, Đà Nẵng
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <script>
+                                                    (function () {
+                                                        const modal = document.getElementById('sellerInfoModal');
+                                                        const overlay = document.getElementById('sellerInfoOverlay');
+                                                        const btnClose = document.getElementById('sellerInfoClose');
+
+                                                        // mở modal khi bấm "Xem thông tin người bán"
+                                                        document.addEventListener('click', (e) => {
+                                                            const btn = e.target.closest('.btn-view-seller');
+                                                            if (!btn) return;
+                                                            modal.classList.remove('hidden');
+                                                            document.documentElement.classList.add('overflow-hidden');
+                                                            document.body.classList.add('overflow-hidden');
+                                                        });
+
+                                                        function closeModal() {
+                                                            modal.classList.add('hidden');
+                                                            document.documentElement.classList.remove('overflow-hidden');
+                                                            document.body.classList.remove('overflow-hidden');
+                                                        }
+
+                                                        overlay.addEventListener('click', closeModal);
+                                                        btnClose.addEventListener('click', closeModal);
+
+                                                        document.addEventListener('keydown', (e) => {
+                                                            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+                                                        });
+                                                    })();
+                                                </script>
+
+                                            </div>
+
+                                            <!-- Trạng thái + hành động -->
+                                            <div class="mt-1 flex items-center justify-between">
+                                                <p class="text-sm">
+                                                    Trạng thái:
+                                                    <span class="font-semibold text-orange-500">Đang giao dịch</span>
+                                                </p>
+
+                                                <!-- Nhóm nút hành động -->
+                                                <div class="flex gap-3">
+                                                    <!-- Nút hủy giao dịch -->
+                                                    <button
+                                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full 
+                                                         border border-red-300 text-red-600 hover:bg-red-600 hover:text-white transition-colors duration-200">
+                                                        <i class="fa-regular fa-circle-xmark"></i>
+                                                        Hủy giao dịch
+                                                    </button>
+
+                                                    <!-- Nút xác nhận hoàn thành -->
+                                                    <button
+                                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full 
+                                                         border border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-colors duration-200">
+                                                        <i class="fa-regular fa-circle-check"></i>
+                                                        Xác nhận hoàn thành
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Card 2 -->
+                                    <div class="request-card group bg-white rounded-xl shadow-sm border-2 border-1-gray-100 p-3 md:p-4 flex items-start gap-4 md:gap-5"
+                                        data-name="Hoàng Thanh An" data-role="seller">
+
+                                        <!-- Ảnh -->
+                                        <div
+                                            class="w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-lg overflow-hidden ring-1 ring-gray-100">
+                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                                alt="Nồi cơm Delites" class="w-full h-full object-cover">
+                                        </div>
+
+                                        <!-- Thông tin chính -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <h3 class="text-base font-bold text-gray-900 truncate">Nồi cơm
+                                                        Delites</h3>
+                                                    <p class="text-sm font-bold text-green-600 mt-0.5">Miễn phí</p>
+
+                                                    <p class="text-sm text-gray-600 mt-0.5">
+                                                        Phường Hòa Khê, Quận Thanh Khê, Đà Nẵng
+                                                    </p>
+
+                                                    <!-- Ngày đăng + hết hạn cạnh nhau -->
+                                                    <div
+                                                        class="mt-0.5 text-xs md:text-sm text-gray-600 flex flex-wrap gap-x-6 gap-y-1">
+                                                        <p>Ngày đăng: <span
+                                                                class="font-medium text-gray-900">14/10/2025</span></p>
+                                                        <p>Ngày hết hạn: <span
+                                                                class="font-medium text-gray-900">14/11/2025</span></p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Danh sách yêu cầu -->
+                                                <button
+                                                    class="btn-requests shrink-0 px-3 py-1.5 rounded-full bg-red-50 text-red-600 font-semibold text-xs md:text-sm border border-red-200 hover:bg-red-100">
+                                                    DANH SÁCH YÊU CẦU <span class="ml-1">(15)</span>
+                                                </button>
+                                            </div>
+
+                                            <!-- MODAL: DANH SÁCH YÊU CẦU -->
+                                            <div id="reqListModal"
+                                                class="hidden fixed inset-0 z-[1000] flex items-center justify-center">
+                                                <!-- overlay -->
+                                                <div id="reqListOverlay" class="absolute inset-0 bg-black/50"></div>
+
+                                                <!-- box -->
+                                                <div class="relative z-10 w-[760px] max-w-[95vw]">
+                                                    <div
+                                                        class="bg-white rounded-2xl shadow-xl overflow-hidden relative">
+                                                        <!-- nút đóng -->
+                                                        <button id="reqListClose"
+                                                            class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100">
+                                                            <i class="fa-solid fa-xmark text-lg text-gray-600"></i>
+                                                        </button>
+
+                                                        <!-- Header: tiêu đề giữa + nút Chọn người nhận nằm dưới thanh đỏ, bên phải -->
+                                                        <div class="px-6 pt-5 pb-3"
+                                                            style="padding-right: 33px; padding-bottom: 15px;">
+                                                            <div class="text-center">
+                                                                <h3 class="text-red-600 font-bold">DANH SÁCH YÊU CẦU
+                                                                    (15)</h3>
+                                                                <div
+                                                                    class="mx-auto mt-2 h-0.5 w-64 bg-red-500 rounded-full">
+                                                                </div>
+
+                                                                <!-- nút nằm dưới thanh đỏ, canh phải -->
+                                                                <div class="mt-2 flex justify-end">
+                                                                    <button id="pickReceiverBtn"
+                                                                        class="px-4 py-2 rounded bg-white text-red-600 border border-red-300 text-sm font-semibold hover:bg-red-50">
+                                                                        Chọn người nhận
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <!-- Body: danh sách có thanh cuộn nhỏ -->
+                                                        <div id="reqListBody"
+                                                            class="px-6 pb-6 max-h-[62vh] overflow-y-auto">
+                                                            <!-- item -->
+                                                            <article
+                                                                class="flex items-start gap-3 p-3 rounded-xl border bg-white shadow-sm mb-3">
+                                                                <img src="image/header_user/avartar.jpg"
+                                                                    class="w-11 h-11 rounded-full object-cover" alt="">
+                                                                <div class="flex-1 min-w-0">
+                                                                    <div class="flex items-center gap-2">
+                                                                        <p class="font-semibold text-gray-900 truncate">
+                                                                            Nguyễn Văn Hiếu</p>
+                                                                        <span
+                                                                            class="flex items-center text-yellow-500 text-xs">
+                                                                            <i
+                                                                                class="fa-solid fa-star mr-1"></i><b>4.7</b>
+                                                                            <span class="ml-1 text-gray-500">(14 đánh
+                                                                                giá)</span>
+                                                                        </span>
+                                                                        <span class="ml-2 text-xs text-gray-500">14 giao
+                                                                            dịch</span>
+                                                                    </div>
+                                                                    <div
+                                                                        class="mt-2 rounded-lg bg-gray-50 border p-3 text-sm text-gray-700">
+                                                                        “Nồi mình bị hư nên mình thực sự cần món đồ này
+                                                                        để nấu ăn trong phòng trọ, cảm ơn bạn rất
+                                                                        nhiều…”
+                                                                    </div>
+                                                                </div>
+                                                                <input type="radio" name="pickUser"
+                                                                    class="mt-1 w-4 h-4 accent-red-600">
+                                                            </article>
+
+                                                            <article
+                                                                class="flex items-start gap-3 p-3 rounded-xl border bg-white shadow-sm mb-3">
+                                                                <img src="image/header_user/avartar.jpg"
+                                                                    class="w-11 h-11 rounded-full object-cover" alt="">
+                                                                <div class="flex-1 min-w-0">
+                                                                    <div class="flex items-center gap-2">
+                                                                        <p class="font-semibold text-gray-900 truncate">
+                                                                            Nguyễn Văn Hiếu</p>
+                                                                        <span
+                                                                            class="flex items-center text-yellow-500 text-xs">
+                                                                            <i
+                                                                                class="fa-solid fa-star mr-1"></i><b>4.7</b>
+                                                                            <span class="ml-1 text-gray-500">(14 đánh
+                                                                                giá)</span>
+                                                                        </span>
+                                                                        <span class="ml-2 text-xs text-gray-500">14 giao
+                                                                            dịch</span>
+                                                                    </div>
+                                                                    <div
+                                                                        class="mt-2 rounded-lg bg-gray-50 border p-3 text-sm text-gray-700">
+                                                                        “Nồi mình bị hư nên mình thực sự cần món đồ này
+                                                                        để nấu ăn trong phòng trọ, cảm ơn bạn rất
+                                                                        nhiều…”
+                                                                    </div>
+                                                                </div>
+                                                                <input type="radio" name="pickUser"
+                                                                    class="mt-1 w-4 h-4 accent-red-600">
+                                                            </article>
+
+                                                            <article
+                                                                class="flex items-start gap-3 p-3 rounded-xl border bg-white shadow-sm mb-3">
+                                                                <img src="image/header_user/avartar.jpg"
+                                                                    class="w-11 h-11 rounded-full object-cover" alt="">
+                                                                <div class="flex-1 min-w-0">
+                                                                    <div class="flex items-center gap-2">
+                                                                        <p class="font-semibold text-gray-900 truncate">
+                                                                            Nguyễn Văn Hiếu</p>
+                                                                        <span
+                                                                            class="flex items-center text-yellow-500 text-xs">
+                                                                            <i
+                                                                                class="fa-solid fa-star mr-1"></i><b>4.7</b>
+                                                                            <span class="ml-1 text-gray-500">(14 đánh
+                                                                                giá)</span>
+                                                                        </span>
+                                                                        <span class="ml-2 text-xs text-gray-500">14 giao
+                                                                            dịch</span>
+                                                                    </div>
+                                                                    <div
+                                                                        class="mt-2 rounded-lg bg-gray-50 border p-3 text-sm text-gray-700">
+                                                                        “Nồi mình bị hư nên mình thực sự cần món đồ này
+                                                                        để nấu ăn trong phòng trọ, cảm ơn bạn rất
+                                                                        nhiều…”
+                                                                    </div>
+                                                                </div>
+                                                                <input type="radio" name="pickUser"
+                                                                    class="mt-1 w-4 h-4 accent-red-600">
+                                                            </article>
+
+                                                            <article
+                                                                class="flex items-start gap-3 p-3 rounded-xl border bg-white shadow-sm mb-3">
+                                                                <img src="image/header_user/avartar.jpg"
+                                                                    class="w-11 h-11 rounded-full object-cover" alt="">
+                                                                <div class="flex-1 min-w-0">
+                                                                    <div class="flex items-center gap-2">
+                                                                        <p class="font-semibold text-gray-900 truncate">
+                                                                            Nguyễn Văn Hiếu</p>
+                                                                        <span
+                                                                            class="flex items-center text-yellow-500 text-xs">
+                                                                            <i
+                                                                                class="fa-solid fa-star mr-1"></i><b>4.7</b>
+                                                                            <span class="ml-1 text-gray-500">(14 đánh
+                                                                                giá)</span>
+                                                                        </span>
+                                                                        <span class="ml-2 text-xs text-gray-500">14 giao
+                                                                            dịch</span>
+                                                                    </div>
+                                                                    <div
+                                                                        class="mt-2 rounded-lg bg-gray-50 border p-3 text-sm text-gray-700">
+                                                                        “Nồi mình bị hư nên mình thực sự cần món đồ này
+                                                                        để nấu ăn trong phòng trọ, cảm ơn bạn rất
+                                                                        nhiều…”
+                                                                    </div>
+                                                                </div>
+                                                                <input type="radio" name="pickUser"
+                                                                    class="mt-1 w-4 h-4 accent-red-600">
+                                                            </article>
+
+                                                            <!-- thêm các item khác tương tự -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                (function () {
+                                                    const modal = document.getElementById('reqListModal');
+                                                    const overlay = document.getElementById('reqListOverlay');
+                                                    const btnClose = document.getElementById('reqListClose');
+                                                    const btnPick = document.getElementById('pickReceiverBtn');
+
+                                                    // mở khi bấm nút DANH SÁCH YÊU CẦU
+                                                    document.addEventListener('click', (e) => {
+                                                        const openBtn = e.target.closest('.btn-requests'); // gắn class này vào button DANH SÁCH YÊU CẦU
+                                                        if (!openBtn) return;
+                                                        modal.classList.remove('hidden');
+                                                        document.documentElement.classList.add('overflow-hidden');
+                                                        document.body.classList.add('overflow-hidden');
+                                                    });
+
+                                                    function closeModal() {
+                                                        modal.classList.add('hidden');
+                                                        document.documentElement.classList.remove('overflow-hidden');
+                                                        document.body.classList.remove('overflow-hidden');
+                                                    }
+                                                    overlay.addEventListener('click', closeModal);
+                                                    btnClose.addEventListener('click', closeModal);
+                                                    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal(); });
+
+                                                    // xử lý chọn người nhận
+                                                    btnPick.addEventListener('click', () => {
+                                                        const chosen = document.querySelector('#reqListBody input[name="pickUser"]:checked');
+                                                        if (!chosen) {
+                                                            alert('Vui lòng chọn một người nhận.');
+                                                            return;
+                                                        }
+                                                        // TODO: gọi API / cập nhật UI theo người đã chọn
+                                                        closeModal();
+                                                    });
+                                                })();
+                                            </script>
+
+                                            <!-- Hành động -->
+                                            <div class="mt-1 flex justify-end gap-3">
+                                                <!-- Xóa bài -->
+                                                <button
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full border border-gray-300 bg-white hover:bg-gray-100">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                    Xóa bài
+                                                </button>
+
+                                                <!-- Sửa bài -->
+                                                <button
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full border border-red-300 text-red-600 bg-white hover:bg-red-600 hover:text-white">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                    Sửa bài
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-4 text-center">
+                                        <button
+                                            class="load-more px-8 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 border border-gray-300">
+                                            Xem thêm
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- HOÀN THÀNH -->
+                                <div data-post-panel="hoan-thanh" class="panel-grid hidden space-y-5">
+                                    <!-- Card 1 -->
+                                    <div class="request-card group bg-white rounded-xl shadow-sm border-2 border-1-gray-100 p-3 md:p-4 flex items-start gap-4 md:gap-5"
+                                        data-name="Hoàng Thanh An" data-role="seller">
+                                        <!-- Ảnh -->
+                                        <div
+                                            class="w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-lg overflow-hidden ring-1 ring-gray-100 ">
+                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                                alt="Nồi cơm Delites" class="w-full h-full object-cover">
+                                        </div>
+
+                                        <!-- Thông tin chính -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <h3 class="text-base font-bold text-gray-900 truncate">Nồi cơm
+                                                        Delites</h3>
+                                                    <p class="text-sm font-bold text-green-600 mt-0.5">Miễn phí</p>
+
+                                                    <div class="mt-0.5 text-xs md:text-sm text-gray-600 space-y-0.5">
+                                                        <p class="text-sm text-gray-600 mt-0.5">
+                                                            Phường Hòa Khê, Quận Thanh Khê, Đà Nẵng
+                                                        </p>
+                                                        <p>Ngày đăng: <span
+                                                                class="font-medium text-gray-900">14/10/2025</span></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Trạng thái + hành động -->
+                                            <div class="mt-1 flex items-center justify-between">
+                                                <p class="text-sm">
+                                                    Trạng thái:
+                                                    <span class="font-semibold text-green-500">Đã hoàn thành</span>
+                                                </p>
+                                                <button
+                                                    class="btn-rate inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full 
+                                                     border border-red-200 text-red-600 hover:bg-red-600 hover:text-white transition-colors duration-200">
+                                                    <i class="fa-regular fa-star"></i>
+                                                    Đánh giá người nhận
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 text-center">
+                                        <button
+                                            class="load-more px-8 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 border border-gray-300">
+                                            Xem thêm
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- HẾT HẠN -->
+                                <div data-post-panel="het-han" class="panel-grid hidden space-y-5">
+                                    <!-- Card 1 -->
+                                    <div class="request-card group bg-white rounded-xl shadow-sm border-2 border-1-gray-100 p-3 md:p-4 flex items-start gap-4 md:gap-5"
+                                        data-name="Hoàng Thanh An" data-role="seller">
+
+                                        <!-- Ảnh -->
+                                        <div
+                                            class="w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-lg overflow-hidden ring-1 ring-gray-100">
+                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                                alt="Nồi cơm Delites" class="w-full h-full object-cover">
+                                        </div>
+
+                                        <!-- Thông tin chính -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <h3 class="text-base font-bold text-gray-900 truncate">Nồi cơm
+                                                        Delites</h3>
+                                                    <p class="text-sm font-bold text-green-600 mt-0.5">Miễn phí</p>
+
+                                                    <p class="text-sm text-gray-600 mt-0.5">
+                                                        Phường Hòa Khê, Quận Thanh Khê, Đà Nẵng
+                                                    </p>
+
+                                                    <!-- Ngày đăng + hết hạn cạnh nhau -->
+                                                    <div
+                                                        class="mt-0.5 text-xs md:text-sm text-gray-600 flex flex-wrap gap-x-6 gap-y-1">
+                                                        <p>Ngày đăng: <span
+                                                                class="font-medium text-gray-900">14/10/2025</span></p>
+                                                        <p>Ngày hết hạn: <span
+                                                                class="font-medium text-gray-900">14/11/2025</span></p>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <!-- Hành động -->
+                                            <div class="mt-1 flex justify-end gap-3">
+                                                <!-- Xóa bài -->
+                                                <button
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full border border-gray-300 bg-white hover:bg-gray-100">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                    Xóa bài
+                                                </button>
+
+                                                <!-- Sửa bài -->
+                                                <button
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full border border-red-300 text-red-600 bg-white hover:bg-red-600 hover:text-white">
+                                                    <i class="fa-solid fa-rotate-right"></i>
+                                                    Đăng lại
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 text-center">
+                                        <button
+                                            class="load-more px-8 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 border border-gray-300">
+                                            Xem thêm
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- BẢN NHÁP -->
+                                <div data-post-panel="ban-nhap" class="panel-grid hidden space-y-5">
+                                    <!-- Card 1 -->
+                                    <div class="request-card group bg-white rounded-xl shadow-sm border-2 border-1-gray-100 p-3 md:p-4 flex items-start gap-4 md:gap-5"
+                                        data-name="Hoàng Thanh An" data-role="seller">
+
+                                        <!-- Ảnh -->
+                                        <div
+                                            class="w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-lg overflow-hidden ring-1 ring-gray-100">
+                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                                alt="Nồi cơm Delites" class="w-full h-full object-cover">
+                                        </div>
+
+                                        <!-- Thông tin chính -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <h3 class="text-base font-bold text-gray-900 truncate">Nồi cơm
+                                                        Delites</h3>
+                                                    <p class="text-sm font-bold text-green-600 mt-0.5">Miễn phí</p>
+
+                                                    <p class="text-sm text-gray-600 mt-0.5">
+                                                        Phường Hòa Khê, Quận Thanh Khê, Đà Nẵng
+                                                    </p>
+                                                </div>
+
+                                            </div>
+
+                                            <!-- Hành động -->
+                                            <div class="mt-1 flex justify-end gap-3" style="margin-top: 26px;">
+                                                <!-- Xóa bài -->
+                                                <button
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full border border-gray-300 bg-white hover:bg-gray-100">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                    Xóa bài
+                                                </button>
+
+                                                <!-- Sửa bài -->
+                                                <button
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full border border-red-300 text-red-600 bg-white hover:bg-red-600 hover:text-white">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                    Tiếp tục đăng
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 text-center">
+                                        <button
+                                            class="load-more px-8 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 border border-gray-300">
+                                            Xem thêm
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- CHỜ DUYỆT -->
+                                <div data-post-panel="cho-duyet" class="panel-grid hidden space-y-5">
+                                    <!-- Card 1 -->
+                                    <div class="request-card group bg-white rounded-xl shadow-sm border-2 border-1-gray-100 p-3 md:p-4 flex items-start gap-4 md:gap-5"
+                                        data-name="Hoàng Thanh An" data-role="seller">
+                                        <!-- Ảnh -->
+                                        <div
+                                            class="w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-lg overflow-hidden ring-1 ring-gray-100 ">
+                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                                alt="Nồi cơm Delites" class="w-full h-full object-cover">
+                                        </div>
+
+                                        <!-- Thông tin chính -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <h3 class="text-base font-bold text-gray-900 truncate">Nồi cơm
+                                                        Delites</h3>
+                                                    <p class="text-sm font-bold text-green-600 mt-0.5">Miễn phí</p>
+
+                                                    <div class="mt-0.5 text-xs md:text-sm text-gray-600 space-y-0.5">
+                                                        <p class="text-sm text-gray-600 mt-0.5">
+                                                            Phường Hòa Khê, Quận Thanh Khê, Đà Nẵng
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Trạng thái + hành động -->
+                                            <div class="mt-1 flex items-center justify-between"
+                                                style="margin-top: 33px;">
+                                                <p class="text-sm">
+                                                    Trạng thái:
+                                                    <span class="font-semibold text-blue-600">Đang chờ duyệt</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 text-center">
+                                        <button
+                                            class="load-more px-8 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 border border-gray-300">
+                                            Xem thêm
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- BỊ TỪ CHỐI -->
+                                <div data-post-panel="bi-tu-choi" class="panel-grid hidden space-y-5">
+                                    <!-- Card 1 -->
+                                    <div class="request-card group bg-white rounded-xl shadow-sm border-2 border-1-gray-100 
+                                            p-3 md:p-4 flex items-start gap-4 md:gap-5" data-name="Hoàng Thanh An"
+                                        data-role="seller">
+
+                                        <!-- Ảnh -->
+                                        <div
+                                            class="w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-lg overflow-hidden ring-1 ring-gray-100">
+                                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                                alt="Nồi cơm Delites" class="w-full h-full object-cover">
+                                        </div>
+
+                                        <!-- Thông tin chính -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex justify-between items-start gap-4">
+
+                                                <!-- Cột trái: tên, giá, vị trí -->
+                                                <div class="min-w-0">
+                                                    <h3 class="text-base font-bold text-gray-900 truncate">Nồi cơm
+                                                        Delites</h3>
+                                                    <p class="text-sm font-bold text-green-600 mt-0.5">Miễn phí</p>
+                                                    <p class="text-sm text-gray-600 mt-0.5">
+                                                        Phường Hòa Khê, Quận Thanh Khê, Đà Nẵng
+                                                    </p>
+                                                </div>
+
+                                                <!-- Cột phải: lý do bị từ chối -->
+                                                <div
+                                                    class="w-[400px] bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-gray-800">
+                                                    <div class="flex items-start gap-2">
+                                                        <i
+                                                            class="fa-solid fa-triangle-exclamation text-red-500 mt-0.5"></i>
+                                                        <div>
+                                                            <p class="font-semibold text-red-600">Bài đăng bị từ chối
+                                                                vì:</p>
+                                                            <ul class="list-disc list-inside mt-1 space-y-0.5">
+                                                                <li>Bài chưa được đăng do sai chuyên mục</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <!-- Hành động -->
+                                            <div class="mt-1 flex justify-end gap-3" style="margin-top: 24px;">
+                                                <!-- Xóa bài -->
+                                                <button
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full border border-gray-300 bg-white hover:bg-gray-100">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                    Xóa bài
+                                                </button>
+
+                                                <!-- Sửa bài -->
+                                                <button
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full border border-red-300 text-red-600 bg-white hover:bg-red-600 hover:text-white">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                    Sửa bài
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 text-center">
+                                        <button
+                                            class="load-more px-8 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 border border-gray-300">
+                                            Xem thêm
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- JS: chuyển tab & tìm kiếm (độc lập với phần Lịch sử giao dịch) -->
+                            <script>
+                                // chuyển tab
+                                (function () {
+                                    const tabBtns = document.querySelectorAll('.tab-btn');
+                                    const panels = document.querySelectorAll('[data-post-panel]');
+
+                                    tabBtns.forEach(btn => {
+                                        btn.addEventListener('click', () => {
+                                            tabBtns.forEach(b => {
+                                                b.classList.remove('text-red-600', 'border-red-500');
+                                                b.classList.add('text-gray-600', 'border-transparent');
+                                            });
+                                            btn.classList.remove('text-gray-600', 'border-transparent');
+                                            btn.classList.add('text-red-600', 'border-red-500');
+
+                                            const key = btn.getAttribute('data-tab');
+                                            panels.forEach(p => p.classList.toggle('hidden', p.getAttribute('data-post-panel') !== key));
+                                        });
+                                    });
+
+                                    // Tìm kiếm theo tiêu đề bài đăng (trong panel đang mở)
+                                    const searchInput = document.getElementById('lsSearch');
+                                    function currentPanel() {
+                                        return Array.from(panels).find(p => !p.classList.contains('hidden'));
+                                    }
+                                    if (searchInput) {
+                                        searchInput.addEventListener('input', () => {
+                                            const q = searchInput.value.toLowerCase().trim();
+                                            const panel = currentPanel();
+                                            if (!panel) return;
+                                            panel.querySelectorAll('.post-card').forEach(card => {
+                                                const title = card.querySelector('.title')?.textContent.toLowerCase() || '';
+                                                card.classList.toggle('hidden', !title.includes(q));
+                                            });
+                                        });
+                                    }
+                                })();
+                            </script>
+
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay cho modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <!-- Modal xác nhận đăng xuất -->
+    <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- JS nho nhỏ cho tab & search -->
+    <script>
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('[data-panel]');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // reset tất cả tab về trạng thái inactive
+                tabBtns.forEach(b => {
+                    b.classList.remove('text-red-600', 'border-red-500');
+                    b.classList.add('text-gray-600', 'border-transparent');
+                });
+
+                // kích hoạt tab vừa bấm
+                btn.classList.remove('text-gray-600', 'border-transparent');
+                btn.classList.add('text-red-600', 'border-red-500');
+
+                // hiện panel tương ứng
+                const name = btn.getAttribute('data-tab');
+                panels.forEach(p => p.classList.toggle('hidden', p.getAttribute('data-panel') !== name));
+            });
+        });
+
+        // Simple client-side search over titles
+        const search = document.getElementById('lsSearch');
+        if (search) {
+            search.addEventListener('input', () => {
+                const q = search.value.toLowerCase().trim();
+                document.querySelectorAll('.request-card').forEach(card => {
+                    const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+                    card.classList.toggle('hidden', !title.includes(q));
+                });
+            });
+        }
+    </script>
+
+    <!-- JS xem thêm sản phẩm -->
+    <script>
+        // cấu hình
+        const INITIAL_COUNT = 2;
+        const STEP = 2;
+
+        // khởi tạo paginate cho từng panel có class panel-grid
+        document.querySelectorAll('.panel-grid').forEach(panel => {
+            const cards = Array.from(panel.getElementsByClassName('request-card'));
+            const btn = panel.querySelector('.load-more');
+            let visible = Math.min(INITIAL_COUNT, cards.length);
+
+            function render() {
+                cards.forEach((c, i) => c.style.display = i < visible ? '' : 'none');
+                if (btn) btn.style.display = visible >= cards.length ? 'none' : 'inline-flex';
+            }
+
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    visible += STEP;
+                    render();
+                });
+            }
+
+            render();
+        });
+
+        // JS xử lý đăng xuất
+        (() => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('logoutConfirm');
+            const btnOK = document.getElementById('logoutSubmit');
+            const btnNO = document.getElementById('logoutCancel');
+
+            let targetForm = null; // form sẽ được submit khi bấm "Có"
+
+            function openModal(form) {
+                targetForm = form;
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+            function closeModal() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                targetForm = null;
+            }
+
+            // Bắt các nút logout
+            document.querySelectorAll('.js-logout-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    if (!form) return;
+                    openModal(form);
+                });
+            });
+
+            // Nút "Không"
+            btnNO.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            // Nút "Có"
+            btnOK.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    // tránh submit đôi
+                    btnOK.disabled = true;
+                    targetForm.submit();
+                } else {
+                    closeModal();
+                }
+            });
+
+            // Click ra ngoài hộp => đóng
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            overlay.addEventListener('click', closeModal);
+        })();
+
+        // Hàm lấy CSRF token
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                return '_csrf=' + encodeURIComponent(csrfToken.getAttribute('content'));
+            }
+            return '';
+        }
+    </script>
+
+
+
+    <!-- JS của phần Header không được xóa -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = {
+            menuBtn: 'menuDropdown',
+            favBtn: 'favDropdown',
+            notiBtn: 'notiDropdown',
+            avatarBtn: 'dropdownMenu'
+        };
+
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    overlay.classList.add('hidden');
+                } else {
+                    menu.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id =>
+                document.getElementById(id).classList.add('hidden')
+            );
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId =>
+                document.getElementById(btnId).contains(e.target)
+            )) {
+                overlay.classList.add('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+            }
+        });
+    </script>
+
+    <script th:src="@{/js/favorite.js}"></script>
+    
+</body>
+
+</html>

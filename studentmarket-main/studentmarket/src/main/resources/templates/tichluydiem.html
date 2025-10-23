@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .menu-parent:hover .menu-child {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+
+    <!-- Header -->
+    <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+    <!-- MAIN -->
+    <main class="pt-14 pb-10">
+        <div class="max-w-7xl mx-auto px-4 pt-9">
+
+            <!-- Phần trên: Hồ sơ (PROFILE) -->
+            <div th:replace="~{fragments/hosoprofile :: hosoprofile}"></div>
+
+            <!-- Layout 2 cột -->
+            <div class="flex flex-col md:flex-row gap-6">
+
+                <!-- Main Container -->
+                <div class="flex flex-col md:flex-row gap-6">
+
+                    <!-- Sidebar -->
+                    <aside class="md:col-span-3">
+                        <nav class="bg-white rounded-2xl shadow divide-y top-24 w-[245px]">
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-tl-2xl rounded-tr-2xl"
+                                th:href="@{/tongquan}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/home.png}" alt="Tổng Quan"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Tổng Quan</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
+                                th:href="@{/thongtintaikhoan}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/setting.png}" alt="Thông tin tài khoản"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Thông tin tài khoản</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/quanlybaidang}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/edit.png}" alt="Quản lí bài đăng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Quản lý bài đăng</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/lichsugiaodich}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/file.png}" alt="Lịch sử giao dịch"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Lịch sử giao dịch</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 bg-red-50" th:href="@{/tichluydiem}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/tichluy-red.png}" alt="Tích lũy điểm"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-red-600 font-semibold">Tích lũy điểm</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/danhgia}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/danhgia.png}" alt="Đánh giá"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Đánh giá</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/gopy}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/gopy.png}" alt="Góp ý & hỗ trợ"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Góp ý & hỗ trợ</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/dieukhoansudung}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/dieukhoan.png}" alt="Điều khoản sử dụng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Điều khoản sử dụng</span>
+                            </a>
+
+                            <form th:action="@{/logout}" method="post"
+                                class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-bl-2xl rounded-br-2xl">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="button"
+                                    class="js-logout-trigger flex items-center gap-3 w-full text-left">
+                                    <!-- Icon bằng ảnh -->
+                                    <img th:src="@{/image/thongtintaikhoan/dangxuat.png}" alt="Đăng xuất"
+                                        class="w-6 h-6 object-cover" />
+                                    <!-- Nội dung -->
+                                    <span class="text-gray-800 font-semibold">Đăng xuất</span>
+                                </button>
+                            </form>
+                        </nav>
+                    </aside>
+
+                    <!-- HUY HIỆU / ĐIỂM -->
+                    <section class="flex-1">
+                        <!-- Đang sử dụng -->
+                        <div class="bg-white rounded-2xl shadow p-6 w-[980px] mx-auto" id="activeBadgeBox"
+                            style="padding-top: 10px;">
+                            <div class="text-center">
+                                <p class="text-red-600 font-bold">Huy hiệu đang sử dụng</p>
+                                <div class="h-0.5 w-64 bg-red-500 mx-auto rounded-full mt-2"></div>
+
+                                <!-- Ảnh huy hiệu lớn -->
+                                <div class="mt-4 flex items-center justify-center">
+                                    <img id="activeBadgeImg" src="image/tichluydiem/b1.png" alt="Huy hiệu đang sử dụng"
+                                        class="w-28 h-28 object-contain">
+                                </div>
+                                <p id="activeBadgePoints" class="mt-2 text-lg font-bold text-gray-900">150 điểm</p>
+                            </div>
+                        </div>
+
+                        <!-- Bộ sưu tập huy hiệu -->
+                        <div class="mt-6 bg-white rounded-2xl shadow p-6">
+                            <h3 class="text-base font-bold text-gray-900 mb-3">Chinh phục huy hiệu</h3>
+
+                            <div id="badgeGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+
+                                <!-- 10 điểm -->
+                                <div class="text-center badge-item" data-points="10"
+                                    data-img="image/tichluydiem/b4.png">
+                                    <img src="image/tichluydiem/b4.png" alt="10 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">10 điểm</p>
+                                    <button
+                                        class="badge-btn inline-block mt-1 px-3 py-1 text-xs rounded-full bg-black text-white shadow">Sử
+                                        dụng</button>
+                                </div>
+
+                                <!-- 50 điểm -->
+                                <div class="text-center badge-item" data-points="50"
+                                    data-img="image/tichluydiem/b3.png">
+                                    <img src="image/tichluydiem/b3.png" alt="50 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">50 điểm</p>
+                                    <button
+                                        class="badge-btn inline-block mt-1 px-3 py-1 text-xs rounded-full bg-black text-white shadow">Sử
+                                        dụng</button>
+                                </div>
+
+                                <!-- 100 điểm -->
+                                <div class="text-center badge-item" data-points="100"
+                                    data-img="image/tichluydiem/b2.png">
+                                    <img src="image/tichluydiem/b2.png" alt="100 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">100 điểm</p>
+                                    <button
+                                        class="badge-btn inline-block mt-1 px-3 py-1 text-xs rounded-full bg-black text-white shadow">Sử
+                                        dụng</button>
+                                </div>
+
+                                <!-- 150 điểm (đang dùng) -->
+                                <div class="text-center badge-item" data-points="150"
+                                    data-img="image/tichluydiem/b1.png">
+                                    <img src="image/tichluydiem/b1.png" alt="150 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">150 điểm</p>
+                                    <button
+                                        class="badge-btn inline-block mt-1 px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-600 border border-blue-200">Đang
+                                        sử dụng</button>
+                                </div>
+
+
+                                <!-- 200 điểm (đủ để đổi) -->
+                                <div class="text-center">
+                                    <img src="image/tichluydiem/v4.png" alt="200 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">200 điểm</p>
+                                    <button
+                                        class="inline-flex items-center justify-center mt-1 px-3 py-1 text-xs rounded-full border border-red-400 text-red-500 hover:bg-red-50">
+                                        Đổi
+                                    </button>
+                                </div>
+
+                                <!-- 250 điểm -->
+                                <div class="text-center">
+                                    <img src="image/tichluydiem/v3.png" alt="250 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">250 điểm</p>
+                                    <span
+                                        class="inline-block mt-1 px-3 py-1 text-xs rounded-full border border-gray-300 text-gray-600">Chưa
+                                        đủ</span>
+                                </div>
+
+                                <!-- 300 điểm -->
+                                <div class="text-center">
+                                    <img src="image/tichluydiem/v2.png" alt="300 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">300 điểm</p>
+                                    <span
+                                        class="inline-block mt-1 px-3 py-1 text-xs rounded-full border border-gray-300 text-gray-600">Chưa
+                                        đủ</span>
+                                </div>
+
+                                <!-- 350 điểm -->
+                                <div class="text-center">
+                                    <img src="image/tichluydiem/v1.png" alt="350 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">350 điểm</p>
+                                    <span
+                                        class="inline-block mt-1 px-3 py-1 text-xs rounded-full border border-gray-300 text-gray-600">Chưa
+                                        đủ</span>
+                                </div>
+
+                                <!-- 400 điểm -->
+                                <div class="text-center">
+                                    <img src="image/tichluydiem/kc4.png" alt="400 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">400 điểm</p>
+                                    <span
+                                        class="inline-block mt-1 px-3 py-1 text-xs rounded-full border border-gray-300 text-gray-600">Chưa
+                                        đủ</span>
+                                </div>
+
+                                <!-- 450 điểm -->
+                                <div class="text-center">
+                                    <img src="image/tichluydiem/kc3.png" alt="450 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">450 điểm</p>
+                                    <span
+                                        class="inline-block mt-1 px-3 py-1 text-xs rounded-full border border-gray-300 text-gray-600">Chưa
+                                        đủ</span>
+                                </div>
+
+                                <!-- 500 điểm -->
+                                <div class="text-center">
+                                    <img src="image/tichluydiem/kc2.png" alt="500 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">500 điểm</p>
+                                    <span
+                                        class="inline-block mt-1 px-3 py-1 text-xs rounded-full border border-gray-300 text-gray-600">Chưa
+                                        đủ</span>
+                                </div>
+
+                                <!-- 550 điểm -->
+                                <div class="text-center">
+                                    <img src="image/tichluydiem/kc1.png" alt="550 điểm"
+                                        class="mx-auto w-24 h-24 object-contain">
+                                    <p class="mt-2 font-semibold text-gray-900">550 điểm</p>
+                                    <span
+                                        class="inline-block mt-1 px-3 py-1 text-xs rounded-full border border-gray-300 text-gray-600">Chưa
+                                        đủ</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay cho modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <!-- Modal xác nhận đăng xuất -->
+    <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+        const badgeBtns = document.querySelectorAll('.badge-btn');
+        const activeBadgeImg = document.getElementById('activeBadgeImg');
+        const activeBadgePoints = document.getElementById('activeBadgePoints');
+        const userBadgeImg = document.getElementById('userBadgeImg'); // 👈 thêm dòng này
+
+        badgeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Reset tất cả nút "Đang sử dụng" thành "Sử dụng"
+                badgeBtns.forEach(b => {
+                    b.textContent = "Sử dụng";
+                    b.className = "badge-btn inline-block mt-1 px-3 py-1 text-xs rounded-full bg-black text-white shadow";
+                });
+
+                // Chuyển nút hiện tại sang "Đang sử dụng"
+                btn.textContent = "Đang sử dụng";
+                btn.className = "badge-btn inline-block mt-1 px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-600 border border-blue-200";
+
+                // Lấy dữ liệu huy hiệu
+                const badgeItem = btn.closest('.badge-item');
+                const imgSrc = badgeItem.getAttribute('data-img');
+                const points = badgeItem.getAttribute('data-points');
+
+                // Cập nhật phần "Huy hiệu đang sử dụng"
+                activeBadgeImg.src = imgSrc;
+                activeBadgeImg.alt = `Huy hiệu ${points} điểm`;
+                activeBadgePoints.textContent = `${points} điểm`;
+
+                // 👉 Đồng bộ huy hiệu cạnh tên user
+                if (userBadgeImg) {
+                    userBadgeImg.src = imgSrc;
+                    userBadgeImg.alt = `Huy hiệu ${points} điểm`;
+                }
+            });
+        });
+
+        // JS xử lý đăng xuất
+        (() => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('logoutConfirm');
+            const btnOK = document.getElementById('logoutSubmit');
+            const btnNO = document.getElementById('logoutCancel');
+
+            let targetForm = null; // form sẽ được submit khi bấm "Có"
+
+            function openModal(form) {
+                targetForm = form;
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+            function closeModal() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                targetForm = null;
+            }
+
+            // Bắt các nút logout
+            document.querySelectorAll('.js-logout-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    if (!form) return;
+                    openModal(form);
+                });
+            });
+
+            // Nút "Không"
+            btnNO.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            // Nút "Có"
+            btnOK.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    // tránh submit đôi
+                    btnOK.disabled = true;
+                    targetForm.submit();
+                } else {
+                    closeModal();
+                }
+            });
+
+            // Click ra ngoài hộp => đóng
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            overlay.addEventListener('click', closeModal);
+        })();
+
+        // Hàm lấy CSRF token
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                return '_csrf=' + encodeURIComponent(csrfToken.getAttribute('content'));
+            }
+            return '';
+        }
+    </script>
+
+
+    <!-- JS của phần Header không được xóa -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = {
+            menuBtn: 'menuDropdown',
+            favBtn: 'favDropdown',
+            notiBtn: 'notiDropdown',
+            avatarBtn: 'dropdownMenu'
+        };
+
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    overlay.classList.add('hidden');
+                } else {
+                    menu.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id =>
+                document.getElementById(id).classList.add('hidden')
+            );
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId =>
+                document.getElementById(btnId).contains(e.target)
+            )) {
+                overlay.classList.add('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+            }
+        });
+    </script>
+
+    <script th:src="@{/js/favorite.js}"></script>
+    
+</body>
+
+</html>

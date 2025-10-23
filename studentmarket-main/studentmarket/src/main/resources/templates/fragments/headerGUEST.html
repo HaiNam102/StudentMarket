@@ -1,0 +1,144 @@
+<!-- Header -->
+<header th:fragment="headerGUEST" class="fixed top-0 left-0 w-full bg-red-600 text-white shadow-md z-50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
+
+        <!-- Danh mục -->
+        <div class="relative">
+            <div class="flex items-center space-x-4">
+                <button id="menuBtn" title="Danh mục"
+                    class="w-8 h-8 flex items-center justify-center bg-white text-red-600 rounded-md shadow hover:bg-gray-200">
+                    <img th:src="@{/image/header/menu.png}" alt="Menu" class="w-5 h-5" />
+                </button>
+                <a th:href="@{/StudentMarket}" class="text-xl font-extrabold transition">STUDENT MARKET</a>
+            </div>
+
+            <div id="menuDropdown"
+                class="hidden absolute left-0 mt-4 w-72 bg-white text-gray-700 rounded-md shadow-lg z-40">
+
+                <div th:each="p : ${categories}" class="relative group">
+                    <a th:href="@{'/StudentMarket/category/parent/' + ${p.parentId}}"
+                        class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-100 rounded-md">
+
+                        <div class="flex items-center space-x-2">
+                            <!-- Fallback nếu iconPath rỗng -->
+                            <img th:if="${#strings.isEmpty(p.iconPath)}" th:src="@{/image/header/other.png}" alt="icon"
+                                class="w-5 h-5" />
+
+                            <!-- Có iconPath trong DB thì dùng -->
+                            <img th:if="${!#strings.isEmpty(p.iconPath)}" th:src="${p.iconPath}" alt="icon"
+                                class="w-5 h-5" />
+
+                            <span th:text="${p.name}">Danh mục cha</span>
+                        </div>
+
+                        <!-- Ảnh mũi tên -->
+                        <img th:src="@{/image/header/next.png}" alt="arrow" class="w-4 h-4" />
+                    </a>
+
+                    <div th:if="${!#lists.isEmpty(p.children)}"
+                        class="absolute top-0 left-full ml-1 hidden group-hover:block bg-white text-gray-700 rounded-md shadow-lg"
+                        style="width: 220px">
+                        <a th:each="c : ${p.children}" th:href="@{'/StudentMarket/category/child/' + ${c.childId}}"
+                            class="block px-4 py-2 hover:bg-gray-100 rounded-md" th:text="${c.name}">Danh mục
+                            con</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh Tìm kiếm -->
+        <div class="flex-1 px-4 flex justify-center">
+            <div class="relative w-full max-w-md">
+                <input type="text" placeholder="Tìm đồ dùng cũ..."
+                    class="w-full px-4 py-2 pl-10 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400" />
+                <button id="searchBtn"
+                    class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-500">
+                    <!-- Button kính lúp -->
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z">
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Icons + buttons Yêu thích với thông báo -->
+        <div class="flex items-center space-x-3">
+            <!-- Yêu thích -->
+            <div class="relative">
+                <button id="favBtn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500">
+                    <img th:src="@{/image/header/like.png}" alt="Yêu Thích" class="w-6 h-6" />
+                </button>
+                <div id="favDropdown"
+                    class="hidden absolute right-0 mt-4 w-56 bg-white text-gray-700 rounded-md shadow-lg z-40">
+                    <p class="px-4 py-2 font-semibold border-b">Yêu thích</p>
+                </div>
+            </div>
+            <!-- Thông báo -->
+            <div class="relative">
+                <button id="notiBtn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500">
+                    <img th:src="@{/image/header/notification.png}" alt="Thông báo" class="w-6 h-6" />
+                </button>
+                <div id="notiDropdown"
+                    class="hidden absolute right-0 mt-4 w-64 bg-white text-gray-700 rounded-md shadow-lg z-40">
+                    <p class="px-4 py-2 font-semibold border-b">Thông báo</p>
+                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 hover:rounded-md">Nguyễn An đã nhắn bạn về
+                        "Laptop cũ"</a>
+                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 hover:rounded-md">Sản phẩm "Xe đạp thể
+                        thao" đã có người quan tâm</a>
+                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 hover:rounded-md">Bạn có 1 đánh giá mới</a>
+                </div>
+            </div>
+
+            <!-- Đăng nhập -->
+            <a th:href="@{/oauth2/authorization/google}"
+                class="bg-white font-semibold text-black px-3 py-1 rounded-full flex items-center transition duration-200 ease-in-out hover:bg-gray-200"
+                style="height: 36px; padding-bottom: 8px; padding-top: 8px;">
+                Đăng nhập
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 ml-2"
+                    alt="Google" />
+            </a>
+
+            <!-- Avatar + dropdown -->
+            <div class="relative">
+                <button id="avatarBtn"
+                    class="bg-red-500 p-2 rounded-full flex items-center space-x-1 hover:bg-red-400 relative overflow-visible">
+                    <img th:src="@{/image/header/profile-user.png}" alt="Avatar"
+                        class="w-7 h-7 rounded-full object-cover -m-1" />
+                    <!-- Mũi tên dropdown avatar -->
+                    <svg class="w-7 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 10 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                    </svg>
+                </button>
+
+                <!-- Dropdown menu -->
+                <div id="dropdownMenu"
+                    class="hidden absolute right-0 mt-3.5 w-72 bg-white rounded-xl shadow-lg z-50 overflow-hidden">
+                    <!-- Header Dropdown menu -->
+                    <div class="p-4">
+                        <p class="text-sm text-black font-bold leading-snug">Đồ cũ trao tay, tiết kiệm mỗi ngày.</p>
+                        <p class="text-gray-600 text-xs mt-1">Đăng nhập ngay!</p>
+
+                        <!-- Button căn giữa -->
+                        <div class="flex justify-center">
+                            <a th:href="@{/oauth2/authorization/google}"
+                                class="mt-3 bg-black font-semibold text-white px-4 py-2 rounded-md hover:bg-gray-600 flex items-center">
+                                Đăng nhập bằng
+                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                    class="w-5 h-5 ml-2" alt="Google" />
+                            </a>
+
+                        </div>
+                    </div>
+
+                    <!-- Footer Dropdown menu -->
+                    <div class="border-t px-4 py-2 flex justify-center items-center text-xs font-medium bg-gray-200">
+                        <a href="#" class="text-red-500">Tiếng Việt</a>
+                        <span class="mx-1 text-gray-500">/</span>
+                        <a href="#" class="text-gray-800 hover:text-black">English</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

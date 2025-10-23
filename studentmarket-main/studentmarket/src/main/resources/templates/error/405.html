@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        /* NỀN CHÉO TRƯỢT */
+        .bg {
+            animation: slide 3s ease-in-out infinite alternate;
+            background-image: linear-gradient(-60deg, #ef4444 50%, #fecdd3 50%);
+            position: fixed;
+            inset: 0;
+            left: -50%;
+            right: -50%;
+            opacity: .5;
+            /* nếu dùng palette (3) → đổi .35 */
+            z-index: -1;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .bg2 {
+            animation-direction: alternate-reverse;
+            animation-duration: 4s;
+        }
+
+        .bg3 {
+            animation-duration: 5s;
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translateX(-25%);
+            }
+
+            100% {
+                transform: translateX(25%);
+            }
+        }
+
+
+        /* Tôn trọng người dùng hạn chế hiệu ứng */
+        @media (prefers-reduced-motion: reduce) {
+
+            .bg,
+            .bg2,
+            .bg3 {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+    <div class="bg-white w-full max-w-md rounded-2xl shadow p-8 text-center relative z-10">
+        <div class="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v6m0 3h.01" />
+                <circle cx="12" cy="12" r="9" stroke-width="2" />
+            </svg>
+        </div>
+        <h1 class="text-xl font-semibold text-gray-900">Phương thức không được phép (405)</h1>
+        <p class="text-sm text-gray-600 mt-1">Bạn đang dùng sai HTTP method cho đường dẫn này.</p>
+        <div class="text-xs text-gray-400 mt-3 space-y-1">
+            <div th:if="${status}" th:text="'Mã lỗi: ' + ${status}"></div>
+            <div th:if="${error}" th:text="'Mô tả: ' + ${error}"></div>
+            <div th:if="${message}" th:text="'Chi tiết: ' + ${message}"></div>
+            <div th:if="${timestamp}" th:text="'Thời gian: ' + ${timestamp}"></div>
+        </div>
+        <div class="mt-6">
+            <a th:href="@{/StudentMarket}" class="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">Về trang
+                chủ</a>
+        </div>
+    </div>
+</body>
+
+</html>

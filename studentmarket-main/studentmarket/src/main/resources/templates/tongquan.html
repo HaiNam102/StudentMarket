@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .menu-parent:hover .menu-child {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+
+    <!-- Header -->
+    <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+    <!-- MAIN -->
+    <main class="pt-14 pb-10">
+        <div class="max-w-7xl mx-auto px-4 pt-9">
+
+            <!-- Phần trên: Hồ sơ (PROFILE) -->
+            <div th:replace="~{fragments/hosoprofile :: hosoprofile}"></div>
+
+            <!-- Layout 2 cột -->
+            <div class="flex flex-col md:flex-row gap-6">
+
+                <!-- Main Container -->
+                <div class="flex flex-col md:flex-row gap-6">
+
+                    <!-- Sidebar -->
+                    <aside class="md:col-span-3">
+                        <nav class="bg-white rounded-2xl shadow divide-y top-24 w-[245px]">
+
+                            <a class="flex items-center gap-3 px-6 py-3 bg-red-50 rounded-tl-2xl rounded-tr-2xl"
+                                th:href="@{/tongquan}">
+                                <!-- Icon bằng ảnh -->
+                                <img src="image/thongtintaikhoan/home-red.png" alt="Tổng Quan"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-red-600 font-semibold">Tổng Quan</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
+                                th:href="@{/thongtintaikhoan}">
+                                <!-- Icon bằng ảnh -->
+                                <img src="image/thongtintaikhoan/setting.png" alt="Thông tin tài khoản"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Thông tin tài khoản</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/quanlybaidang}">
+                                <!-- Icon bằng ảnh -->
+                                <img src="image/thongtintaikhoan/edit.png" alt="Quản lý bài đăng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Quản lý bài đăng</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/lichsugiaodich}">
+                                <!-- Icon bằng ảnh -->
+                                <img src="image/thongtintaikhoan/file.png" alt="Lịch sử giao dịch"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Lịch sử giao dịch</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/tichluydiem}">
+                                <!-- Icon bằng ảnh -->
+                                <img src="image/thongtintaikhoan/tichluy.png" alt="Tích lũy điểm"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Tích lũy điểm</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/danhgia}">
+                                <!-- Icon bằng ảnh -->
+                                <img src="image/thongtintaikhoan/danhgia.png" alt="Đánh giá"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Đánh giá</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/gopy}">
+                                <!-- Icon bằng ảnh -->
+                                <img src="image/thongtintaikhoan/gopy.png" alt="Góp ý & hỗ trợ"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Góp ý & hỗ trợ</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/dieukhoansudung}">
+                                <!-- Icon bằng ảnh -->
+                                <img src="image/thongtintaikhoan/dieukhoan.png" alt="Điều khoản sử dụng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Điều khoản sử dụng</span>
+                            </a>
+
+                            <form th:action="@{/logout}" method="post"
+                                class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-bl-2xl rounded-br-2xl">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="button"
+                                    class="js-logout-trigger flex items-center gap-3 w-full text-left">
+                                    <!-- Icon bằng ảnh -->
+                                    <img th:src="@{/image/thongtintaikhoan/dangxuat.png}" alt="Đăng xuất"
+                                        class="w-6 h-6 object-cover" />
+                                    <!-- Nội dung -->
+                                    <span class="text-gray-800 font-semibold">Đăng xuất</span>
+                                </button>
+                            </form>
+                        </nav>
+                    </aside>
+
+                    <!-- ================== SẢN PHẨM YÊU THÍCH ================== -->
+                    <section class="flex-1 bg-white rounded-2xl shadow p-6" style="padding-top: 10px;">
+                        <!-- Tiêu đề -->
+                        <div class="flex justify-center mb-6">
+                            <div class="text-center">
+                                <h3 class="text-red-600 font-bold">Sản phẩm yêu thích</h3>
+                                <div class="h-0.5 w-64 bg-red-500 mx-auto rounded-full mt-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- Grid sản phẩm -->
+                        <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6" style="width: 931px;">
+                            <!-- Sản phẩm yêu thích từ database -->
+                            <div th:each="product : ${favoriteProducts}"
+                                class="product relative w-64 mx-auto bg-white border-2 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-2 cursor-pointer flex flex-col"
+                                th:data-hot="${product.isHot}"
+                                th:data-date="${#temporals.format(product.createdAt, 'yyyy-MM-dd')}"
+                                th:data-price="${product.price}">
+                                <div class="relative h-40 w-full">
+                                    <img th:src="${product.imageUrl != null ? product.imageUrl : '/image/card/image.png'}"
+                                        class="rounded-md w-full h-full object-cover" />
+
+                                    <!-- Nút HOT -->
+                                    <span th:if="${product.isHot}"
+                                        class="absolute top-3 left-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded-full">Hot</span>
+
+                                    <!-- Trái tim -->
+                                    <button th:onclick="'toggleFavorite(this, ' + ${product.productId} + ')'"
+                                        th:data-product-id="${product.productId}"
+                                        class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                                        <i class="fa-solid fa-heart" style="color: #ef4444;"></i>
+                                    </button>
+                                    <!-- Overlay ngày đăng + số ảnh -->
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 flex justify-between items-center rounded-b-md">
+                                        <span th:text="${product.relativeTime}">1 ngày trước</span>
+                                        <span class="flex items-center">
+                                            <span
+                                                th:text="${'+' + (product.images != null ? product.images.size() : 0)}">+3</span>
+                                            <i class="fa-solid fa-image w-3 h-3 ml-2"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Nội dung -->
+                                <div class="mt-2 text-sm flex flex-col flex-grow justify-between">
+                                    <div>
+                                        <p class="font-semibold text-base line-clamp-2 h-[48px] leading-6 overflow-hidden"
+                                            th:text="${product.name}">Tên sản phẩm</p>
+                                        <p class="text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap block"
+                                            th:text="${product.description}">Mô tả</p>
+                                        <div class="flex items-center text-gray-500 mt-1">
+                                            <i class="fa-solid fa-location-dot text-gray-500 text-xs mr-1"></i>
+                                            <p
+                                                th:text="${product.address != null ? product.address.ward + ', ' + product.address.province : 'Chưa rõ địa điểm'}">
+                                                Địa điểm</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-red-600 font-medium mt-1 text-lg"
+                                        th:text="${product.price == 0 ? 'Miễn phí' : #numbers.formatDecimal(product.price, 0, 'COMMA', 3, 'POINT').replace(',', '.') + 'đ'}">
+                                        0đ</p>
+                                </div>
+                            </div>
+
+                            <!-- Thông báo nếu không có sản phẩm yêu thích (luôn tồn tại, ẩn/hiện bằng JS) -->
+                            <div id="emptyState" class="col-span-full text-center py-12 hidden"
+                                th:classappend="${#lists.isEmpty(favoriteProducts)} ? '' : ' hidden'">
+                                <div class="text-gray-500">
+                                    <i class="fa-regular fa-heart text-6xl mb-4"></i>
+                                    <h3 class="text-xl font-semibold mb-2">Chưa có sản phẩm yêu thích</h3>
+                                    <p class="text-sm">Hãy khám phá và thêm sản phẩm vào yêu thích nhé!</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Nút xem thêm (nằm trong thẻ section để kế thừa padding/bg) -->
+                        <div class="col-span-full mt-6 flex justify-center">
+                            <button id="loadMoreBtn"
+                                class="px-6 py-2 bg-white border border-gray-200 text-gray-800 font-medium rounded-md hover:bg-gray-50">
+                                Xem thêm
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay cho modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <!-- Modal xác nhận đăng xuất -->
+    <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+        // JS của sản phẩm
+        let visibleCount = 6;              // hiển thị ban đầu
+        const step = 3;                    // số sản phẩm mỗi lần bấm "Xem thêm"
+        const grid = document.getElementById("productGrid");
+        const loadMoreBtn = document.getElementById("loadMoreBtn");
+        const emptyState = document.getElementById("emptyState");
+
+        // Lấy danh sách .product MỚI NHẤT, loại trừ item đang xoá
+        function getProducts() {
+            return Array.from(grid.querySelectorAll(".product:not(.is-removing)"));
+        }
+
+        // Hiển thị/ẩn trạng thái rỗng + điều chỉnh nút "Xem thêm"
+        function updateEmptyState() {
+            const items = getProducts();
+            const hasItems = items.length > 0;
+
+            if (emptyState) {
+                emptyState.classList.toggle('hidden', hasItems); // không còn sản phẩm -> hiện emptyState
+            }
+            if (loadMoreBtn) {
+                // chỉ hiện "Xem thêm" khi còn item ẩn
+                loadMoreBtn.style.display = (hasItems && visibleCount < items.length) ? "inline-block" : "none";
+            }
+        }
+
+        // Hiển thị theo visibleCount (và cập nhật trạng thái nút)
+        function showProducts() {
+            const items = getProducts();
+            items.forEach((p, i) => {
+                p.style.display = i < visibleCount ? "block" : "none";
+            });
+            updateEmptyState(); // 👈 cập nhật trạng thái rỗng & nút
+        }
+
+        // Sau khi xoá 1 item: bật thêm item đang ẩn để đủ visibleCount
+        function refillAfterRemove() {
+            const items = getProducts();
+            const shouldShow = Math.min(visibleCount, items.length);
+
+            // Đếm số item đang hiển thị
+            let currentlyVisible = 0;
+            for (const p of items) if (p.style.display !== "none") currentlyVisible++;
+
+            // Bật thêm nếu thiếu
+            let need = shouldShow - currentlyVisible;
+            if (need > 0) {
+                for (const p of items) {
+                    if (need <= 0) break;
+                    if (p.style.display === "none") {
+                        p.style.display = "block";
+                        need--;
+                    }
+                }
+            }
+
+            // Cập nhật trạng thái rỗng + nút
+            updateEmptyState(); // 👈 nếu đã xoá hết → hiện emptyState ngay
+        }
+
+        // Cho favorite.js dùng
+        window.showProducts = showProducts;
+        window.refillAfterRemove = refillAfterRemove;
+
+        // Nút "Xem thêm"
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener("click", () => {
+                visibleCount += step;
+                showProducts();
+            });
+        }
+
+        // Khởi tạo
+        showProducts();
+
+        // JS xử lý đăng xuất
+        (() => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('logoutConfirm');
+            const btnOK = document.getElementById('logoutSubmit');
+            const btnNO = document.getElementById('logoutCancel');
+
+            let targetForm = null; // form sẽ được submit khi bấm "Có"
+
+            function openModal(form) {
+                targetForm = form;
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+            function closeModal() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                targetForm = null;
+            }
+
+            // Bắt các nút logout
+            document.querySelectorAll('.js-logout-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    if (!form) return;
+                    openModal(form);
+                });
+            });
+
+            // Nút "Không"
+            btnNO.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            // Nút "Có"
+            btnOK.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    // tránh submit đôi
+                    btnOK.disabled = true;
+                    targetForm.submit();
+                } else {
+                    closeModal();
+                }
+            });
+
+            // Click ra ngoài hộp => đóng
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            overlay.addEventListener('click', closeModal);
+        })();
+
+        // Hàm lấy CSRF token
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                return '_csrf=' + encodeURIComponent(csrfToken.getAttribute('content'));
+            }
+            return '';
+        }
+    </script>
+
+    <!-- JS của phần Header -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = {
+            menuBtn: 'menuDropdown',
+            favBtn: 'favDropdown',
+            notiBtn: 'notiDropdown',
+            avatarBtn: 'dropdownMenu'
+        };
+
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    overlay.classList.add('hidden');
+                } else {
+                    menu.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id =>
+                document.getElementById(id).classList.add('hidden')
+            );
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId =>
+                document.getElementById(btnId).contains(e.target)
+            )) {
+                overlay.classList.add('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+            }
+        });
+    </script>
+
+    <script th:src="@{/js/favorite.js}"></script>
+
+</body>
+
+</html>

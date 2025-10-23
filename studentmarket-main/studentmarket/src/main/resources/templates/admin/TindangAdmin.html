@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Market – Tin đăng</title>
+  <style>
+    :root {
+      --bg: #f7f6fb;
+      --surface: #fff;
+      --line: #e9e6ef;
+      --text: #1f1c2e;
+      --muted: #6b6780;
+      --primary: #7c4dff;
+      --primary-soft: #efe6ff;
+      --hover: #f6f5fb;
+      --hover-strong: #ece8ff;
+      --good: #12b886;
+      --bad: #e74c3c;
+      --radius: 16px;
+      --sidebar-w: 260px;
+      --gutter: 36px;
+      --block-gap: 24px;
+    }
+    * { box-sizing: border-box }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial
+    }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      border-top-right-radius: 18px;
+      border-bottom-right-radius: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.05);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 20;
+    }
+    .sb-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px }
+    .sb-logo {
+      width: 48px; height: 44px;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: grid; place-items: center;
+      font-weight: 800; font-size: 20px
+    }
+    .sb-brand { font-weight: 700; color: #4a4660 }
+    .sb-nav { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .sb-item {
+      display: flex; align-items: center; gap: 12px;
+      height: 56px; border-radius: 14px; padding: 0 14px;
+      color: #3b3652; cursor: pointer; font-size: 15px; font-weight: 600; letter-spacing: .2px;
+      transition: background .15s ease, color .15s ease, transform .03s ease;
+      outline: none; border: 1px solid transparent;
+      text-decoration: none;
+    }
+    .sb-ico { width: 28px; min-width: 28px; text-align: center; font-size: 20px; line-height: 1; transform: translateY(-1px); }
+    .sb-item:hover { background: var(--hover-strong); border-color: #e2dcff; }
+    .sb-item:active { transform: scale(.99); }
+    .sb-item.active {
+      background: var(--primary-soft); color: var(--primary); border-color: #dacbff;
+      box-shadow: 0 0 0 2px rgba(124,77,255,.10) inset;
+    }
+    .sb-logout { margin-top: auto; }
+    .wrap {
+      width: 100%;
+      margin: 0;
+      padding-left: calc(var(--sidebar-w) + var(--gutter));
+      padding-right: 32px;
+      padding-top: 28px;
+      padding-bottom: 40px;
+    }
+    .page-title { font-weight: 800; font-size: 24px; margin: 6px 0 var(--block-gap) }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 10px rgba(0,0,0,.05);
+    }
+    .card-bd { padding: 14px 16px }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: var(--block-gap);
+      margin-bottom: var(--block-gap);
+    }
+    .kcard { padding: 18px 20px; min-height: 96px; display: flex; flex-direction: column; justify-content: center }
+    .k-title { font-size: 13px; color: var(--muted); margin-bottom: 6px }
+    .k-row { display: flex; align-items: baseline; gap: 10px }
+    .k-value { font-size: 28px; font-weight: 800 }
+    .pill{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:inline-block}
+    .pill.approved{background:#dcfce7;color:#166534}
+    .pill.pending{background:#fee2e2;color:#b91c1c}
+    .pill.expired{background:#ede9fe;color:#5b21b6}
+    .thumb-post{width:80px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+    .badge { font-size: 11px; border-radius: 6px; padding: 3px 8px; display: inline-block; border: 1px solid var(--line); background: #f7f6fb; margin-left: 8px; font-weight: 600 }
+    .badge.vip{background:#ede9fe;color:#5b21b6; border-color: #d8b4fe}
+    .badge.free{background:#dbeafe;color:#1e3a8a; border-color: #93c5fd}
+    .actions{display:flex;gap:6px;justify-content:flex-end}
+    .btn-icon{border:none;background:transparent;cursor:pointer;font-size:18px;padding:6px;border-radius:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center}
+    .btn-icon:hover{background:#f3f4ff}
+    table { width: 100%; border-collapse: collapse; table-layout: fixed }
+    thead th, tbody td { padding: 14px 16px; vertical-align: middle }
+    thead th {
+      font-weight: 700; font-size: 13px; text-align: left; color: #4b465c;
+      background: #f9fafb; border-bottom: 2px solid var(--line)
+    }
+    tbody td { border-bottom: 1px solid #f3f4f6 }
+    tr:last-child td { border-bottom: none }
+    tbody tr:hover td { background: #fafbfc; }
+    tbody tr { background: #fff }
+    .user { display: flex; align-items: center; gap: 10px }
+    .user img { border: 1px solid var(--line) }
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:200;padding:20px}
+    .modal.open{display:flex}
+    .modal-card{background:#fff;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.08);width:min(560px,95%);position:relative;padding:18px}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .modal-title{font-weight:700;font-size:16px}
+    .modal-close{border:none;background:transparent;font-size:20px;cursor:pointer}
+    .modal-body{display:grid;gap:10px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field label{font-weight:600;font-size:13px;color:#374151}
+    .field input,.field select,.field textarea{border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;outline:none}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(124,77,255,.1)}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+    .btn { padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--line); background: #fff; cursor: pointer; font-weight: 600 }
+    .btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .btn.primary:hover{background:#6c3de8}
+    .btn.secondary{background:#f3f4f6;border-color:#e5e7eb}
+    .btn.secondary:hover{background:#e5e7eb}
+    
+    /* Column widths */
+    thead th:nth-child(1), tbody td:nth-child(1) { width: 80px }
+    thead th:nth-child(2), tbody td:nth-child(2) { width: 100px }
+    thead th:nth-child(3), tbody td:nth-child(3) { width: auto; min-width: 200px }
+    thead th:nth-child(4), tbody td:nth-child(4) { width: 140px }
+    thead th:nth-child(5), tbody td:nth-child(5) { width: 110px }
+    thead th:nth-child(6), tbody td:nth-child(6) { width: 180px }
+    thead th:nth-child(7), tbody td:nth-child(7) { width: 120px }
+    thead th:nth-child(8), tbody td:nth-child(8) { width: 120px; text-align: right }
+    
+    .post-item {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      transition: box-shadow .2s ease;
+    }
+    .post-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+    .post-thumb {
+      width: 120px;
+      height: 90px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .post-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .post-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .post-title-wrap {
+      flex: 1;
+    }
+    .post-id {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .post-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin: 4px 0;
+    }
+    .post-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .post-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .post-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px solid #f3f4f6;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">SM</div>
+      <div class="sb-brand">Student Market</div>
+    </div>
+    <ul class="sb-nav">
+      <a href="DashboardAdmin.html" class="sb-item"><span class="sb-ico">🏠</span><span>Dashboard</span></a>
+      <a href="UserAdmin.html" class="sb-item"><span class="sb-ico">👤</span><span>Người dùng</span></a>
+      <a href="TindangAdmin.html" class="sb-item active"><span class="sb-ico">📦</span><span>Tin đăng</span></a>
+      <a href="#" class="sb-item sb-logout"><span class="sb-ico">⚙️</span><span>Đăng Xuất</span></a>
+    </ul>
+  </aside>
+
+  <div class="wrap">
+    <h2 class="page-title">Quản lý tin đăng</h2>
+
+    <section class="card" style="margin-bottom: var(--block-gap)">
+      <div class="card-bd" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        🔍
+        <input id="searchInput" type="text" placeholder="Tìm kiếm tin đăng..."
+               style="flex:1;min-width:260px;height:38px;border:1px solid var(--line);border-radius:999px;padding:0 14px;outline:none">
+      </div>
+    </section>
+
+    <section class="kpis" style="margin-top:-8px">
+      <div class="card kcard">
+        <div class="k-title">Tổng số tin</div>
+        <div class="k-row"><span class="k-value" id="totalCount">0</span></div>
+      </div>
+      <div class="card kcard">
+        <div class="k-title">Tin chờ duyệt</div>
+        <div class="k-row"><span class="k-value" id="pendingCount">0</span></div>
+      </div>
+      <div class="card kcard">
+        <div class="k-title">Tin VIP</div>
+        <div class="k-row"><span class="k-value" id="vipCount">0</span></div>
+      </div>
+      <div class="card kcard">
+        <div class="k-title">Hết hạn</div>
+        <div class="k-row"><span class="k-value" id="expiredCount">0</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div style="padding: 16px" id="postList"></div>
+    </section>
+  </div>
+
+  <!-- Modal chi tiết -->
+  <div id="detailModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title">Chi tiết tin</div>
+        <button class="modal-close" data-close>✖</button>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+      <div class="modal-actions">
+        <button class="btn secondary" data-close>Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal chỉnh sửa -->
+  <div id="editModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title">Chỉnh sửa tin</div>
+        <button class="modal-close" data-close>✖</button>
+      </div>
+      <form id="editForm" class="modal-body">
+        <input type="hidden" name="postIndex" />
+        <div class="field">
+          <label>Tiêu đề</label>
+          <input type="text" name="title" required />
+        </div>
+        <div class="field">
+          <label>Danh mục</label>
+          <select name="category">
+            <option>Ô tô</option><option>Xe máy</option><option>Bất động sản</option>
+            <option>Sách & Tài liệu học tập</option><option>Đồ điện tử & Công nghệ</option>
+            <option>Đồ dùng học tập</option><option>Đồ gia dụng</option><option>Thời trang & Phụ kiện</option>
+            <option>Đồ thể thao & giải trí</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ngày đăng</label>
+          <input type="date" name="date" />
+        </div>
+        <div class="field">
+          <label>Người đăng (email)</label>
+          <input type="email" name="email" />
+        </div>
+        <div class="field">
+          <label>Trạng thái</label>
+          <select name="status">
+            <option value="approved">Đã duyệt</option>
+            <option value="pending">Chờ duyệt</option>
+            <option value="expired">Hết hạn</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Huy hiệu</label>
+          <select name="badge">
+            <option value="">(Không)</option>
+            <option value="vip">VIP</option>
+            <option value="free">FREE</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn secondary" data-close>Hủy</button>
+          <button type="submit" class="btn primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Data
+    let posts = [
+      {
+        id: '#4953',
+        title: 'Vinfast VF7 đời 2025',
+        category: 'Ô tô',
+        date: '01/04/2024',
+        email: 'tuan97@dtu.com',
+        avatar: 'https://i.pravatar.cc/40?img=12',
+        status: 'approved',
+        badge: 'vip',
+        thumb: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=800&auto=format&fit=crop',
+        expiry: '05/05/2024'
+      },
+      {
+        id: '#4954',
+        title: 'Honda City 2023',
+        category: 'Ô tô',
+        date: '05/05/2024',
+        email: 'maihoa@dtu.com',
+        avatar: 'https://i.pravatar.cc/40?img=32',
+        status: 'pending',
+        badge: 'free',
+        thumb: 'https://images.unsplash.com/photo-1605559424843-9e4f1c1c2c5f?q=80&w=800&auto=format&fit=crop',
+        expiry: '11/05/2024'
+      },
+      {
+        id: '#4955',
+        title: 'Toyota Camry 2022',
+        category: 'Ô tô',
+        date: '11/05/2024',
+        email: 'nguyenvan@dtu.com',
+        avatar: 'https://i.pravatar.cc/40?img=18',
+        status: 'expired',
+        badge: 'vip',
+        thumb: 'https://images.unsplash.com/photo-1493238792000-8113da705763?q=80&w=800&auto=format&fit=crop',
+        expiry: '11/05/2024'
+      }
+    ];
+
+    const searchInput = document.getElementById("searchInput");
+    const postList = document.getElementById("postList");
+    const detailModal = document.getElementById("detailModal");
+    const detailBody = document.getElementById("detailBody");
+    const editModal = document.getElementById("editModal");
+    const editForm = document.getElementById("editForm");
+
+    function renderPosts() {
+      const filter = searchInput.value.toLowerCase();
+      const filtered = posts.filter(p => p.title.toLowerCase().includes(filter));
+      
+      postList.innerHTML = filtered.map((post, idx) => `
+        <div class="post-item" data-index="${idx}">
+          <img class="post-thumb" src="${post.thumb}" alt="${post.title}">
+          <div class="post-content">
+            <div class="post-header">
+              <div class="post-title-wrap">
+                <div class="post-id">${post.id}</div>
+                <div class="post-title">
+                  ${post.title}
+                  ${post.badge ? `<span class="badge ${post.badge}">${post.badge.toUpperCase()}</span>` : ''}
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn-icon" data-action="edit" title="Sửa">✏️</button>
+                <button class="btn-icon" data-action="delete" title="Xóa">🗑️</button>
+                <button class="btn-icon" data-action="view" title="Xem">👁️</button>
+              </div>
+            </div>
+            <div class="post-meta">
+              <div class="post-meta-item">📁 ${post.category}</div>
+              <div class="post-meta-item">📅 ${post.date}</div>
+              <div class="post-meta-item">
+                <img src="${post.avatar}" style="width:20px;height:20px;border-radius:50%;object-fit:cover" alt="">
+                ${post.email}
+              </div>
+            </div>
+            <div class="post-footer">
+              <span class="pill ${post.status}">
+                ${post.status === 'approved' ? 'Đã duyệt' : post.status === 'pending' ? 'Chờ duyệt' : 'Hết hạn'}
+              </span>
+              <span style="font-size:12px;color:var(--muted)">
+                ${post.badge === 'free' ? `Ô tô 🕒 ${post.expiry}` : ''}
+              </span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      refreshCounters();
+    }
+
+    // Search
+    searchInput.addEventListener("input", renderPosts);
+
+    // Modal helpers
+    function openModal(el) { el.classList.add("open"); el.setAttribute("aria-hidden", "false"); }
+    function closeModal(el) { el.classList.remove("open"); el.setAttribute("aria-hidden", "true"); }
+    document.querySelectorAll("[data-close]").forEach(btn => {
+      btn.addEventListener("click", () => closeModal(btn.closest(".modal")));
+    });
+    document.querySelectorAll(".modal").forEach(m => {
+      m.addEventListener("click", e => { if (e.target === m) closeModal(m); });
+    });
+
+    // Actions
+    postList.addEventListener("click", (e) => {
+      const btn = e.target.closest("button.btn-icon");
+      if (!btn) return;
+
+      const item = btn.closest(".post-item");
+      const idx = parseInt(item.dataset.index);
+      const post = posts[idx];
+      const action = btn.dataset.action;
+
+      if (action === "view") {
+        detailBody.innerHTML = `
+          <img src="${post.thumb}" alt="" style="width:100%;height:220px;object-fit:cover;border-radius:12px;border:1px solid var(--line)">
+          <div><strong>ID:</strong> ${post.id}</div>
+          <div><strong>Tiêu đề:</strong> ${post.title} ${post.badge ? `<span class="badge ${post.badge}">${post.badge.toUpperCase()}</span>` : ''}</div>
+          <div><strong>Danh mục:</strong> ${post.category}</div>
+          <div><strong>Ngày đăng:</strong> ${post.date}</div>
+          <div><strong>Người đăng:</strong> ${post.email}</div>
+          <div><strong>Trạng thái:</strong> ${post.status === 'approved' ? 'Đã duyệt' : post.status === 'pending' ? 'Chờ duyệt' : 'Hết hạn'}</div>
+        `;
+        openModal(detailModal);
+      }
+
+      if (action === "edit") {
+        editForm.postIndex.value = idx;
+        editForm.title.value = post.title;
+        editForm.category.value = post.category;
+        const [d, m, y] = post.date.split("/");
+        editForm.date.value = y ? `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}` : "";
+        editForm.email.value = post.email;
+        editForm.status.value = post.status;
+        editForm.badge.value = post.badge || "";
+        openModal(editModal);
+      }
+
+      if (action === "delete") {
+        if (confirm("Bạn có chắc muốn xóa tin này?")) {
+          posts.splice(idx, 1);
+          renderPosts();
+        }
+      }
+    });
+
+    // Edit form submit
+    editForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const idx = parseInt(editForm.postIndex.value);
+      const post = posts[idx];
+
+      post.title = editForm.title.value.trim();
+      post.category = editForm.category.value;
+      
+      if (editForm.date.value) {
+        const d = new Date(editForm.date.value);
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yy = d.getFullYear();
+        post.date = `${dd}/${mm}/${yy}`;
+      }
+      
+      post.email = editForm.email.value.trim();
+      post.status = editForm.status.value;
+      post.badge = editForm.badge.value;
+
+      closeModal(editModal);
+      renderPosts();
+    });
+
+    // Counters
+    function refreshCounters() {
+      document.getElementById("totalCount").textContent = posts.length;
+      document.getElementById("pendingCount").textContent = posts.filter(p => p.status === 'pending').length;
+      document.getElementById("vipCount").textContent = posts.filter(p => p.badge === 'vip').length;
+      document.getElementById("expiredCount").textContent = posts.filter(p => p.status === 'expired').length;
+    }
+
+    // Init
+    renderPosts();
+  </script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Market</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    .tabs-container {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      margin-top: 1rem;
+      border-radius: 0.5rem 0.5rem 0 0;
+      overflow: hidden;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      color: #4b5563;
+      font-size: 0.95rem;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      background: #fff;
+    }
+
+    .tab:hover {
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .tab.active {
+      color: #ef4444;
+      font-weight: 600;
+      border-bottom: 3px solid #ef4444;
+    }
+
+    .review-card {
+      display: flex;
+      padding: 1.25rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .review-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 9999px;
+      margin-right: 1rem;
+    }
+
+    .review-stars {
+      color: #facc15;
+      margin: 0.25rem 0;
+    }
+
+    .fade {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100">
+  <!-- Overlay nền mờ -->
+  <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+
+  <!-- Header -->
+  <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+  <main class="pt-14 pb-10">
+    <div class="max-w-7xl mx-auto px-4 pt-8">
+
+      <!-- Breadcrumb -->
+      <div class="text-sm text-gray-600 mb-4">
+        <a th:href="@{/StudentMarket}" class="text-red-500 hover:underline">Student Market</a>
+        <span class="mx-1">›</span>
+        <span class="text-gray-800 font-semibold">Danh sách đánh giá</span>
+      </div>
+
+      <!-- PROFILE HEADER -->
+      <section class="bg-white rounded-2xl shadow p-6 mb-6 flex items-center gap-4">
+        <img th:src="${session.picture} ?: @{/image/header/profile-user.png}" alt="Avatar"
+          class="w-16 h-16 rounded-full object-cover" />
+        <div>
+          <h2 class="text-lg font-semibold" th:text="${session.full_name} ?: 'Người dùng'">Người dùng</h2>
+          <div class="flex items-center space-x-2">
+            <div id="ratingStars" class="text-yellow-400">
+              <!-- ⭐ Sao trung bình sẽ render bằng JS -->
+            </div>
+            <span id="avgRating" class="text-gray-700 text-sm">-</span>
+            <span id="totalReviews" class="text-gray-500 text-sm">• 0 đánh giá</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tabs -->
+      <div class="tabs-container">
+        <button class="tab active" data-tab="all">Tất cả (0)</button>
+        <button class="tab" data-tab="buyers">Từ người mua (0)</button>
+        <button class="tab" data-tab="sellers">Từ người bán (0)</button>
+      </div>
+
+      <!-- Danh sách review -->
+      <section id="reviewsList" class="bg-white rounded-b-xl shadow fade"></section>
+
+      <p class="text-center text-gray-500 my-6">© Student Market</p>
+
+    </div>
+  </main>
+
+  <!-- ======================= SCRIPT ======================= -->
+  <script>
+    async function loadReviews() {
+      try {
+        const res = await fetch('/api/reviews/categorized', { credentials: 'include' });
+        if (!res.ok) throw new Error('Không thể tải dữ liệu');
+        const data = await res.json();
+        renderReviews(data);
+      } catch (err) {
+        console.warn('Sử dụng mock data:', err);
+        renderReviews({
+          asSellerReceived: [],
+          asBuyerReceived: [],
+          writtenByMe: []
+        });
+      }
+    }
+
+    function renderStars(stars) {
+      return Array.from({ length: 5 }, (_, i) =>
+        `<i class="fa-${i < stars ? 'solid' : 'regular'} fa-star text-yellow-400"></i>`
+      ).join('');
+    }
+
+    function calcAverage(list) {
+      if (!list || list.length === 0) return 0;
+      const total = list.reduce((sum, r) => sum + (r.rating || 0), 0);
+      return total / list.length;
+    }
+
+    function renderReviews(data) {
+      const reviewsList = document.getElementById('reviewsList');
+      const tabs = document.querySelectorAll('.tab');
+
+      const map = {
+        all: [...(data.asSellerReceived || []), ...(data.asBuyerReceived || [])],
+        buyers: data.asSellerReceived || [],
+        sellers: data.asBuyerReceived || []
+      };
+
+      // --- Tính trung bình sao & tổng đánh giá ---
+      const allReviews = map.all;
+      const avg = calcAverage(allReviews);
+      const avgRounded = Math.round(avg * 10) / 10;
+
+      // Cập nhật phần đầu
+      document.getElementById('ratingStars').innerHTML = renderStars(Math.round(avg));
+      document.getElementById('avgRating').textContent = avgRounded || "-";
+      document.getElementById('totalReviews').textContent = `• ${allReviews.length} đánh giá`;
+
+      // Cập nhật số lượng trên từng tab
+      tabs[0].textContent = `Tất cả (${allReviews.length})`;
+      tabs[1].textContent = `Từ người mua (${map.buyers.length})`;
+      tabs[2].textContent = `Từ người bán (${map.sellers.length})`;
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          draw(map[tab.dataset.tab]);
+        });
+      });
+
+      draw(map.all);
+    }
+
+    function draw(list) {
+      const c = document.getElementById('reviewsList');
+      if (!list || list.length === 0) {
+        c.innerHTML = `<p class="text-gray-500 text-center py-6">Chưa có đánh giá nào.</p>`;
+        return;
+      }
+
+      c.innerHTML = list.map(r => `
+        <div class="review-card flex p-4 border-b border-gray-100">
+          <img src="${r.reviewerAvatar || '/image/header/profile-user.png'}" class="w-12 h-12 rounded-full object-cover mr-3">
+          <div class="flex-1">
+            <div class="flex justify-between">
+              <p class="font-semibold text-gray-800">${r.reviewerName || 'Người dùng'}</p>
+              <p class="text-gray-500 text-sm">${new Date(r.createdAt).toLocaleDateString('vi-VN')}</p>
+            </div>
+            <div class="review-stars mb-1">${renderStars(r.rating)}</div>
+            <p class="text-gray-700 text-sm">${r.comment || ''}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadReviews);
+  </script>
+  <!-- JS của phần Header không được xóa -->
+  <script>
+    const overlay = document.getElementById('overlay');
+    const dropdowns = {
+      menuBtn: 'menuDropdown',
+      favBtn: 'favDropdown',
+      notiBtn: 'notiDropdown',
+      avatarBtn: 'dropdownMenu'
+    };
+
+    Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+      const btn = document.getElementById(btnId);
+      const menu = document.getElementById(menuId);
+
+      if (!btn || !menu) return; // tránh lỗi nếu chưa render
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !menu.classList.contains('hidden');
+
+        Object.values(dropdowns).forEach(id =>
+          document.getElementById(id)?.classList.add('hidden')
+        );
+
+        if (isOpen) {
+          menu.classList.add('hidden');
+          overlay.classList.add('hidden');
+        } else {
+          menu.classList.remove('hidden');
+          overlay.classList.remove('hidden');
+        }
+      });
+    });
+
+    overlay.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+      Object.values(dropdowns).forEach(id =>
+        document.getElementById(id)?.classList.add('hidden')
+      );
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!Object.keys(dropdowns).some(btnId =>
+        document.getElementById(btnId)?.contains(e.target)
+      )) {
+        overlay.classList.add('hidden');
+        Object.values(dropdowns).forEach(id =>
+          document.getElementById(id)?.classList.add('hidden')
+        );
+      }
+    });
+  </script>
+
+</body>
+
+</html>

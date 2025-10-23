@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+
+    <!-- Header (auto-switch) -->
+    <div sec:authorize="isAuthenticated()" th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+    <div sec:authorize="!isAuthenticated()" th:replace="~{fragments/headerGUEST :: headerGUEST}"></div>
+
+
+    <main class="pt-14 pb-10">
+        <!-- BREADCRUMB -->
+        <nav class="max-w-7xl mx-auto px-4 p-2 text-[13px] text-gray-600" th:with="child=${product.childCategory},
+              parent=${child != null ? child.parent : null}">
+            <ol class="flex items-center gap-1.5 flex-wrap">
+                <!-- Home -->
+                <li>
+                    <i class="fa-solid fa-house"></i>
+                    <a th:href="@{/StudentMarket}" class="hover:underline">Trang chủ</a>
+                </li>
+
+                <!-- / -->
+                <li class="text-gray-400">/</li>
+
+                <!-- Danh mục cha -->
+                <li th:if="${parent != null}">
+                    <a class="hover:underline" th:href="@{'/StudentMarket/category/parent/' + ${parent.parentId}}"
+                        th:text="${parent.name}">Danh mục cha</a>
+                </li>
+
+                <!-- / -->
+                <li class="text-gray-400" th:if="${parent != null}">/</li>
+
+                <!-- Danh mục con -->
+                <li th:if="${child != null}">
+                    <a class="hover:underline" th:href="@{'/StudentMarket/category/child/' + ${child.childId}}"
+                        th:text="${child.name}">Danh mục con</a>
+                </li>
+
+                <!-- / -->
+                <li class="text-gray-400" th:if="${child != null}">/</li>
+
+                <!-- Tên sản phẩm -->
+                <li class="truncate max-w-[40vw] text-gray-900 font-semibold" th:text="${product.name}">Tên sản phẩm
+                </li>
+            </ol>
+        </nav>
+
+
+        <!-- KHỐI CHI TIẾT BÀI ĐĂNG -->
+        <section class="max-w-7xl mx-auto px-4">
+            <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                    <!-- LEFT: Gallery -->
+                    <div class="lg:col-span-2">
+                        <!-- Ảnh to -->
+                        <div class="relative rounded-2xl overflow-hidden border">
+                            <img id="pdMainImg" class="w-full h-[220px] md:h-[400px] object-cover" th:src="${coverImage != null ? coverImage.imageUrl
+                             : (images != null and !#lists.isEmpty(images) ? images.get(0).imageUrl
+                                : '/images/no-image.png')}" th:alt="${product.name}" alt="Ảnh sản phẩm" />
+
+                            <!-- Prev -->
+                            <button id="pdPrev"
+                                class="group absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 border shadow flex items-center justify-center hover:bg-white transition-colors duration-200">
+                                <i
+                                    class="fa-solid fa-chevron-left text-white text-sm group-hover:text-black transition-colors duration-200"></i>
+                            </button>
+
+                            <!-- Next -->
+                            <button id="pdNext"
+                                class="group absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 border shadow flex items-center justify-center hover:bg-white transition-colors duration-200">
+                                <i
+                                    class="fa-solid fa-chevron-right text-white text-sm group-hover:text-black transition-colors duration-200"></i>
+                            </button>
+
+                            <!-- Bộ đếm ảnh -->
+                            <span id="imgCounter"
+                                class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full text-[12px] font-medium bg-black/70 text-white"
+                                th:text="${(images != null ? images.size() : 0) > 0 ? '1/' + images.size() : '0/0'}">1/4</span>
+
+                            <!-- Nút share + báo cáo -->
+                            <div class="absolute top-2 right-2 flex space-x-2">
+                                <button
+                                    class="w-9 h-9 rounded-full bg-white/95 border shadow flex items-center justify-center hover:text-red-600"
+                                    title="Chia sẻ">
+                                    <i class="fa-solid fa-share-nodes"></i>
+                                </button>
+                                <button
+                                    class="w-9 h-9 rounded-full bg-white/95 border shadow flex items-center justify-center hover:text-red-600"
+                                    title="Báo cáo bài viết">
+                                    <i class="fa-regular fa-flag"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Thumbnails -->
+                        <div class="mt-3">
+                            <div th:if="${images != null and !#lists.isEmpty(images)}">
+                                <div id="thumbs"
+                                    class="flex flex-nowrap gap-5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory px-2 py-2 scroll-px-3">
+                                    <!-- Lặp thumbnails -->
+                                    <button
+                                        class="pd-thumb shrink-0 rounded-xl snap-start ring-offset-2 ring-offset-white"
+                                        th:each="img, iter : ${images}"
+                                        th:classappend="${iter.index == 0} ? ' ring-2 ring-red-500' : ''"
+                                        th:attr="data-index=${iter.index}" type="button"
+                                        aria-label="Chọn ảnh [[${iter.index+1}]]">
+                                        <!-- chỉ phần ảnh mới overflow-hidden -->
+                                        <div class="rounded-[inherit] overflow-hidden">
+                                            <img th:src="${img.imageUrl}"
+                                                class="w-[120px] h-[100px] object-cover pointer-events-none"
+                                                alt="thumb" />
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div th:if="${images == null or #lists.isEmpty(images)}"
+                                class="text-center text-gray-500 text-sm py-4 bg-white rounded-md">
+                                Chưa có ảnh cho sản phẩm này.
+                            </div>
+                        </div>
+
+                        <script>
+                            (function () {
+                                const main = document.getElementById('pdMainImg');
+                                const prev = document.getElementById('pdPrev');
+                                const next = document.getElementById('pdNext');
+                                const counter = document.getElementById('imgCounter');
+
+                                const thumbsWrap = document.getElementById('thumbs');
+                                const thumbBtns = thumbsWrap ? Array.from(thumbsWrap.querySelectorAll('.pd-thumb')) : [];
+                                const total = thumbBtns.length;
+
+                                // Không có ảnh -> ẩn nút, hiển thị 0/0
+                                if (total === 0) {
+                                    prev?.classList.add('hidden');
+                                    next?.classList.add('hidden');
+                                    if (counter) counter.textContent = '0/0';
+                                    return;
+                                }
+
+                                // Xác định index ban đầu theo ảnh lớn đang hiển thị (nếu trùng src)
+                                const mainSrc = main?.getAttribute('src') || '';
+                                let index = thumbBtns.findIndex(b => b.querySelector('img')?.getAttribute('src') === mainSrc);
+                                if (index < 0) index = 0;
+
+                                function updateUI(scrollIntoView = true) {
+                                    // Cập nhật ảnh lớn
+                                    const imgEl = thumbBtns[index].querySelector('img');
+                                    if (imgEl && main) main.src = imgEl.getAttribute('src');
+
+                                    // Viền đỏ thumbnail đang chọn
+                                    thumbBtns.forEach((b, i) => {
+                                        b.classList.toggle('ring-2', i === index);
+                                        b.classList.toggle('ring-red-500', i === index);
+                                    });
+
+                                    // Bộ đếm
+                                    if (counter) counter.textContent = (index + 1) + '/' + total;
+
+                                    // Ẩn mũi tên nếu chỉ có 1 ảnh
+                                    const hide = total <= 1;
+                                    prev?.classList.toggle('hidden', hide);
+                                    next?.classList.toggle('hidden', hide);
+
+                                    // Cuộn thanh thumbnails tới đúng ảnh
+                                    if (scrollIntoView && thumbsWrap) {
+                                        thumbBtns[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                                    }
+                                }
+
+                                // Click vào thumbnail -> chọn ảnh
+                                thumbsWrap?.addEventListener('click', (e) => {
+                                    const btn = e.target.closest('.pd-thumb');
+                                    if (!btn) return;
+                                    const i = Number(btn.getAttribute('data-index'));
+                                    if (!Number.isNaN(i)) {
+                                        index = i;
+                                        updateUI();
+                                    }
+                                });
+
+                                // Prev/Next -> đổi ảnh + thumbnails auto cuộn tới ảnh đó
+                                prev?.addEventListener('click', () => {
+                                    index = (index - 1 + total) % total;
+                                    updateUI();
+                                });
+                                next?.addEventListener('click', () => {
+                                    index = (index + 1) % total;
+                                    updateUI();
+                                });
+
+                                // Khởi tạo
+                                updateUI(false);
+                            })();
+                        </script>
+
+                    </div>
+
+                    <!-- RIGHT: Info -->
+                    <aside class="lg:col-span-3 relative">
+                        <button type="button"
+                            th:onclick="|event.preventDefault(); event.stopPropagation(); toggleFavorite(this, ${product.productId})|"
+                            th:data-product-id="${product.productId}"
+                            class="absolute top-2 right-2 z-20 w-8 h-5 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                            <i class="fa-regular fa-heart fa-xl" style="color: #6b7280;"></i>
+                        </button>
+
+                        <h1 class="text-[25px] font-bold text-gray-900" th:text="${product.name}">Tên sản
+                            phẩm</h1>
+                        <p class="mt-0.5 text-[15px] text-gray-500" th:text="${#strings.equalsIgnoreCase(product.type, 'NEW') ? 'Mới' 
+            : (#strings.equalsIgnoreCase(product.type, 'USED') ? 'Đã sử dụng' 
+            : 'Không rõ tình trạng')}"></p>
+
+
+                        <p class="mt-1 text-[25px] font-bold text-red-600 leading-none" th:text="${product.price != null and product.price == 0 ? 'Miễn phí'
+                         : (#numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') + ' đ')}">
+                            0đ
+                        </p>
+
+                        <div class="mt-2 text-[14px] text-gray-700 space-y-1">
+                            <p class="flex items-center gap-2">
+                                <i class="fa-solid fa-location-dot text-gray-500"></i>
+                                <span th:text="${address != null ?
+                                 ((address.ward != null and !#strings.isEmpty(address.ward) ? '' + address.ward : '') +
+                                   (address.province != null and !#strings.isEmpty(address.province) ? ', ' + address.province : '') )
+                                 : (product.location != null ? product.location : 'Chưa rõ địa điểm')}">
+                                    Địa điểm
+                                </span>
+                            </p>
+                            <p class="flex items-center gap-2">
+                                <i class="fa-regular fa-clock text-gray-500"></i>
+                                <span th:text="${product.relativeTime != null ? product.relativeTime : ''}">Đăng 6 giờ
+                                    trước</span>
+                            </p>
+                        </div>
+
+                        <div class="mt-3">
+                            <button id="btnRequest"
+                                class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold shadow hover:bg-red-700">
+                                <i class="fa-regular fa-hand"></i> Đăng ký nhận
+                            </button>
+                            <textarea id="requestNote" rows="3"
+                                class="mt-3 w-full text-sm rounded-xl border border-gray-300 p-3 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400"
+                                placeholder="Nhập lời nhắn gửi đến người đăng trước khi đăng ký nhận..."></textarea>
+                            <p id="requestMsg" class="hidden mt-2 text-sm text-green-600">
+                                <i class="fa-solid fa-circle-check mr-1"></i> Đã gửi yêu cầu nhận. Bạn có thể theo dõi
+                                trong Lịch sử giao dịch.
+                            </p>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÔ TẢ -->
+        <section class="max-w-7xl mx-auto px-4 mt-3">
+            <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                <h2 class="font-bold text-lg text-gray-900 mb-2">Mô tả</h2>
+                <p class="text-[15px] leading-relaxed text-gray-700 whitespace-pre-line"
+                    th:text="${product.description != null ? product.description : 'Chưa có mô tả.'}">
+                    Chưa có mô tả.
+                </p>
+            </div>
+        </section>
+
+        <!-- THÔNG TIN CHI TIẾT -->
+        <section class="max-w-7xl mx-auto px-4 mt-3">
+            <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                <h2 class="font-bold text-lg text-gray-900 mb-3">Thông tin chi tiết</h2>
+
+                <!-- Luôn render, field nào null/empty thì hiện '—' -->
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 text-[13px] divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                    <!-- Cột trái -->
+                    <dl class="space-y-6 pr-6">
+                        <div class="border-b pb-4">
+                            <dt class="text-[15px] text-gray-900 font-medium inline">Xuất xứ:</dt>
+                            <dd class="text-[15px] inline text-gray-600 ml-1"
+                                th:text="${(specs != null && !#strings.isEmpty(specs.origin)) ? specs.origin : '—'}">—
+                            </dd>
+                        </div>
+                        <div style="margin-top: 16px">
+                            <dt class="text-[15px] text-gray-900 font-medium inline">Màu sắc:</dt>
+                            <dd class="text-[15px] inline text-gray-600 ml-1"
+                                th:text="${(specs != null && !#strings.isEmpty(specs.color)) ? specs.color : '—'}">—
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <!-- Cột phải -->
+                    <dl class="space-y-6 pl-6">
+                        <div class="border-b pb-4">
+                            <dt class="text-[15px] text-gray-900 font-medium inline">Chất liệu:</dt>
+                            <dd class=" text-[15px] inline text-gray-600 ml-1"
+                                th:text="${(specs != null && !#strings.isEmpty(specs.material)) ? specs.material : '—'}">
+                            </dd>
+                        </div>
+                        <div style="margin-top: 16px">
+                            <dt class="text-[15px] text-gray-900 font-medium inline">Phụ kiện kèm theo:</dt>
+                            <dd class="text-[15px] inline text-gray-600 ml-1"
+                                th:text="${(specs != null && !#strings.isEmpty(specs.accessories)) ? specs.accessories : '—'}">
+                                —</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- CHỦ BÀI ĐĂNG (giữ UI, có thể bind sau nếu bạn có User) -->
+        <section class="max-w-7xl mx-auto px-4 mt-3">
+            <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                    <!-- Bên trái -->
+                    <div class="flex items-center gap-5 pr-6">
+                        <div class="flex items-center gap-3">
+                            <img th:src="${seller != null and seller.picture != null and !#strings.isEmpty(seller.picture) 
+                        ? seller.picture : '/image/header_user/avartar.jpg'}"
+                                class="w-14 h-14 rounded-full object-cover border" alt="avatar">
+                            <div>
+                                <p class="text-[17px] font-semibold text-gray-900 flex items-center gap-1">
+                                    <span
+                                        th:text="${seller != null && seller.fullName != null ? seller.fullName : 'Người dùng'}">Người
+                                        dùng</span>
+                                    <img src="/image/tichluydiem/b1.png" alt="badge" class="w-5 h-5 object-contain" />
+                                </p>
+                                <!-- Trạng thái người bán-->
+                                <p class="js-live-status text-[12px] text-gray-500 flex items-center" th:attr="data-user-id=${seller != null ? seller.userId : 0},
+            data-last-seen=${sellerLastSeenIso}">
+                                    <i class="js-dot fa-solid fa-circle text-[7px] mr-1"
+                                        th:classappend="${sellerIsOnline} ? ' text-green-500' : ' text-gray-400'"></i>
+                                    <span class="js-text"
+                                        th:text="${sellerIsOnline} ? 'Đang hoạt động' : ${sellerLastSeenHuman}">
+                                        Đang hoạt động
+                                    </span>
+                                </p>
+
+                                <!-- JS trạng thái hoạt động (poller dùng chung cho mọi widget trên trang) -->
+                                <script>
+                                    (function () {
+                                        if (window._liveStatusPoller) return;         // tránh init trùng
+                                        window._liveStatusPoller = true;
+
+                                        const ONLINE_WINDOW_SEC = 60;
+                                        const pad = n => String(n).padStart(2, '0');
+
+                                        function renderFromIso(box, iso) {
+                                            const dot = box.querySelector('.js-dot');
+                                            const text = box.querySelector('.js-text');
+                                            if (!dot || !text) return;
+
+                                            if (!iso) {
+                                                dot.classList.remove('bg-green-500'); dot.classList.add('bg-gray-400');
+                                                text.textContent = 'Chưa từng hoạt động';
+                                                return;
+                                            }
+                                            const last = new Date(iso);
+                                            const diffSec = Math.floor((Date.now() - last.getTime()) / 1000);
+                                            const online = diffSec < ONLINE_WINDOW_SEC;
+
+                                            dot.classList.toggle('bg-green-500', online);
+                                            dot.classList.toggle('bg-gray-400', !online);
+
+                                            if (online) { text.textContent = 'Đang hoạt động'; return; }
+
+                                            const m = Math.floor(diffSec / 60);
+                                            if (m < 60) { text.textContent = `Hoạt động ${m} phút trước`; return; }
+                                            const h = Math.floor(m / 60);
+                                            if (h < 24) { text.textContent = `Hoạt động ${h} giờ trước`; return; }
+                                            text.textContent =
+                                                `Hoạt động ${pad(last.getDate())}/${pad(last.getMonth() + 1)}/${last.getFullYear()} ` +
+                                                `${pad(last.getHours())}:${pad(last.getMinutes())}`;
+                                        }
+
+                                        async function updateAll() {
+                                            const boxes = Array.from(document.querySelectorAll('.js-live-status'));
+                                            if (!boxes.length) return;
+
+                                            // gom theo userId để fetch 1 lần/user
+                                            const byUser = new Map();
+                                            for (const box of boxes) {
+                                                const uid = box.dataset.userId;
+                                                if (!uid || uid === '0') continue;
+                                                if (!byUser.has(uid)) byUser.set(uid, []);
+                                                byUser.get(uid).push(box);
+                                            }
+
+                                            // fetch song song
+                                            const uids = Array.from(byUser.keys());
+                                            const results = await Promise.all(uids.map(uid =>
+                                                fetch(`/api/users/${uid}/last-seen?t=${Date.now()}`, { cache: 'no-store' })
+                                                    .then(r => r.ok ? r.json() : null)
+                                                    .catch(() => null)
+                                            ));
+
+                                            // áp kết quả cho mọi box cùng userId
+                                            uids.forEach((uid, i) => {
+                                                const iso = results[i] && results[i].lastSeenIso ? results[i].lastSeenIso : '';
+                                                byUser.get(uid).forEach(box => {
+                                                    box.dataset.lastSeen = iso;
+                                                    renderFromIso(box, iso);
+                                                });
+                                            });
+
+                                            // render nốt box không có userId (nếu có)
+                                            boxes.forEach(box => {
+                                                if (!box.dataset.userId || box.dataset.userId === '0') {
+                                                    renderFromIso(box, box.dataset.lastSeen || '');
+                                                }
+                                            });
+                                        }
+
+                                        // render ngay, rồi canh mép phút cho đồng bộ tuyệt đối
+                                        updateAll();
+                                        const skew = Date.now() % 60000;
+                                        setTimeout(() => {
+                                            updateAll();
+                                            setInterval(updateAll, 60_000);
+                                        }, 60_000 - skew);
+                                    })();
+                                </script>
+
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <a href="#"
+                                class="px-3 py-1 rounded-full border text-sm font-medium text-red-600 border-red-500 hover:bg-red-50 inline-flex items-center gap-2">
+                                <i class="fa-regular fa-comment-dots"></i> Chat
+                            </a>
+                            <a th:href="@{/StudentMarket/xemprofile/{id}(id=${seller.userId})}"
+                                class="px-3 py-1 rounded-full border border-gray-400 text-sm font-medium hover:bg-gray-100 inline-flex items-center gap-2">
+                                <i class="fa-regular fa-eye"></i> Xem trang
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Bên phải -->
+                    <div class="flex flex-col justify-center pl-6 text-sm">
+                        <p class="mb-2">
+                            <span class="text-[15px] text-gray-500">Đã đăng: </span>
+                            <span class="text-[15px] font-semibold text-gray-900"
+                                th:text="${sellerTotalPosted}">0</span>
+                            <span>bài</span>
+                        </p>
+                        <p>
+                            <span class="text-[15px] text-gray-500">Đánh giá: </span>
+                            <span class="text-[15px] font-semibold text-gray-900">(30)</span>
+                            <span class="text-yellow-400 ml-1">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BÀI ĐĂNG TƯƠNG TỰ -->
+        <section class="max-w-7xl mx-auto px-4 mt-3">
+            <div class="bg-white rounded-xl shadow p-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold">Bài đăng tương tự</h2>
+                </div>
+
+                <!-- Grid sản phẩm -->
+                <div id="productGrid" class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6" style="margin-bottom: 24px;">
+
+                    <!-- Nếu không có sản phẩm -->
+                    <div th:if="${products == null or #lists.isEmpty(products)}"
+                        class="col-span-2 md:col-span-4 text-center text-gray-500 py-10">
+                        Chưa có sản phẩm nào.
+                    </div>
+
+                    <!-- Sản phẩm -->
+                    <article th:each="product : ${products}"
+                        class="product relative w-64 mx-auto bg-white border-2 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-2 cursor-pointer flex flex-col"
+                        th:attr="data-hot=${product.isHot}">
+
+                        <div class="relative h-40 w-full">
+                            <!-- Link ảnh sang chi tiết -->
+                            <a th:href="@{/chitietbaidang/{id}(id=${product.productId})}" class="block h-full">
+                                <img th:src="${(product.images != null and !#lists.isEmpty(product.images)) ? product.images.get(0).imageUrl
+                        : (product.imageUrl != null and !#strings.isEmpty(product.imageUrl) ? product.imageUrl
+                           : '/images/no-image.png')}" alt="" class="rounded-md w-full h-full object-cover" />
+
+                                <!-- Nút HOT -->
+                                <span th:if="${product.isHot}"
+                                    class="absolute top-3 left-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                    Hot
+                                </span>
+
+                                <!-- Overlay ngày đăng + số ảnh -->
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 flex justify-between items-center rounded-b-md">
+                                    <span th:text="${product.relativeTime}">1 ngày trước</span>
+                                    <span class="flex items-center">
+                                        <span
+                                            th:text="${'+' + (product.images != null ? product.images.size() : (product.imageUrl != null ? 1 : 0))}">+0</span>
+                                        <i class="fa-solid fa-image w-3 h-3 ml-2"></i>
+                                    </span>
+                                </div>
+                            </a>
+
+                            <!-- Trái tim (không nằm trong <a>) -->
+                            <button type="button"
+                                th:onclick="|event.preventDefault(); event.stopPropagation(); toggleFavorite(this, ${product.productId})|"
+                                th:data-product-id="${product.productId}"
+                                class="absolute top-2 right-2 z-20 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                                <i class="fa-regular fa-heart" style="color: #6b7280;"></i>
+                            </button>
+                        </div>
+
+                        <!-- Nội dung -->
+                        <div class="mt-2 text-sm flex flex-col flex-grow justify-between">
+                            <!-- Bọc nội dung bằng link riêng -->
+                            <a th:href="@{/chitietbaidang/{id}(id=${product.productId})}" class="block">
+                                <p class="font-semibold text-base line-clamp-2 h-[48px] leading-6 overflow-hidden"
+                                    th:text="${product.name}">Tên sản phẩm</p>
+                                <p class="text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap block"
+                                    th:text="${product.description}">Mô tả</p>
+                                <div class="flex items-center text-gray-500 mt-1">
+                                    <i class="fa-solid fa-location-dot text-gray-500 text-xs mr-1"></i>
+                                    <p th:text="${product.address != null ?
+                        ( (product.address.ward != null and !#strings.isEmpty(product.address.ward) ? product.address.ward : '') +
+                          (product.address.province != null and !#strings.isEmpty(product.address.province) ? ', ' + product.address.province : '') )
+                        : (product.location != null ? product.location : 'Chưa rõ địa điểm')}">
+                                        Địa điểm
+                                    </p>
+                                </div>
+                            </a>
+
+                            <p class="text-red-600 font-medium mt-1 text-lg" th:text="${product.price != null and product.price == 0 
+                   ? 'Miễn phí' 
+                   : #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') + 'đ'}">
+                                0đ
+                            </p>
+                        </div>
+                    </article>
+                </div>
+
+
+                <!-- Nút xem thêm -->
+                <div class="mt-4 text-center">
+                    <button id="loadMoreBtn"
+                        class="px-8 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 border border-gray-300">
+                        Xem thêm
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- JS: Gallery -->
+        <script>
+            (function () {
+                const main = document.getElementById('pdMainImg');
+                const thumbBtns = Array.from(document.querySelectorAll('.pd-thumb'));
+                const thumbs = Array.from(document.querySelectorAll('.pd-thumb img'));
+                const prev = document.getElementById('pdPrev');
+                const next = document.getElementById('pdNext');
+                const counter = document.getElementById('imgCounter');
+
+                let index = 0;
+
+                function updateCounter() {
+                    const total = thumbs.length;
+                    counter.textContent = (total > 0) ? `${index + 1}/${total}` : '0/0';
+                }
+
+                function setActive(i) {
+                    if (thumbs.length === 0) {
+                        if (prev) prev.classList.add('hidden');
+                        if (next) next.classList.add('hidden');
+                        updateCounter();
+                        return;
+                    }
+                    index = (i + thumbs.length) % thumbs.length;
+                    const src = thumbs[index].getAttribute('src');
+                    if (src) main.setAttribute('src', src);
+
+                    thumbBtns.forEach((b, j) => {
+                        b.classList.toggle('ring-2', j === index);
+                        b.classList.toggle('ring-red-500', j === index);
+                    });
+
+                    // Ẩn prev/next khi chỉ có 1 ảnh
+                    const controlsHidden = thumbs.length <= 1;
+                    prev.classList.toggle('hidden', controlsHidden);
+                    next.classList.toggle('hidden', controlsHidden);
+
+                    updateCounter();
+                }
+
+                thumbBtns.forEach((btn, i) => btn.addEventListener('click', () => setActive(i)));
+                prev && prev.addEventListener('click', () => setActive(index - 1));
+                next && next.addEventListener('click', () => setActive(index + 1));
+                setActive(0);
+            })();
+        </script>
+
+        <!-- JS: gửi yêu cầu nhận (giả lập) -->
+        <script>
+            (function () {
+                const btn = document.getElementById('btnRequest');
+                const msg = document.getElementById('requestMsg');
+                btn.addEventListener('click', () => {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-70', 'cursor-not-allowed');
+                    msg.classList.remove('hidden');
+                });
+            })();
+        </script>
+
+        <!-- Overlay cho modal -->
+        <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+        <!-- Modal xác nhận đăng xuất -->
+        <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    </main>
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- JS BÀI ĐĂNG TƯƠNG TỰ -->
+    <script>
+        //JS của sản phẩm 
+        let visibleCount = 8; // số sản phẩm hiển thị ban đầu
+        const step = 4; // số sản phẩm thêm mỗi lần
+        const grid = document.getElementById("productGrid");
+        const products = Array.from(grid.getElementsByClassName("product"));
+        const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+        function showProducts() {
+            products.forEach((p, i) => {
+                p.style.display = i < visibleCount ? "block" : "none";
+            });
+            loadMoreBtn.style.display = visibleCount >= products.length ? "none" : "inline-block";
+        }
+
+        loadMoreBtn.addEventListener("click", () => {
+            visibleCount += step;
+            showProducts();
+        });
+
+        // Lọc/sắp xếp (nếu cần gọi ở nơi khác)
+        function filterProducts(type) {
+            let filtered = [...products];
+
+            if (type === "hot") {
+                filtered = filtered.filter(p => p.dataset.hot === "true");
+            } else if (type === "newest") {
+                filtered.sort((a, b) => new Date(b.dataset.date) - new Date(a.dataset.date));
+            } else if (type === "asc") {
+                filtered.sort((a, b) => parseInt(a.dataset.price || "0") - parseInt(b.dataset.price || "0"));
+            } else if (type === "desc") {
+                filtered.sort((a, b) => parseInt(b.dataset.price || "0") - parseInt(a.dataset.price || "0"));
+            }
+
+            grid.innerHTML = "";
+            filtered.forEach(p => grid.appendChild(p));
+            visibleCount = 8;
+            showProducts();
+        }
+
+        showProducts();
+    </script>
+
+    <!-- JS của phần Header không được xóa -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = {
+            menuBtn: 'menuDropdown',
+            favBtn: 'favDropdown',
+            notiBtn: 'notiDropdown',
+            avatarBtn: 'dropdownMenu'
+        };
+
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+
+            btn && btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id)?.classList.add('hidden')
+                );
+
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    overlay.classList.add('hidden');
+                } else {
+                    menu.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id =>
+                document.getElementById(id)?.classList.add('hidden')
+            );
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId =>
+                document.getElementById(btnId)?.contains(e.target)
+            )) {
+                overlay.classList.add('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id)?.classList.add('hidden')
+                );
+            }
+        });
+
+        // Modal đăng xuất
+        (() => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('logoutConfirm');
+            const btnOK = document.getElementById('logoutSubmit');
+            const btnNO = document.getElementById('logoutCancel');
+
+            let targetForm = null;
+
+            function openModal(form) {
+                targetForm = form;
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+            function closeModal() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                targetForm = null;
+            }
+
+            document.querySelectorAll('.js-logout-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    if (!form) return;
+                    openModal(form);
+                });
+            });
+
+            btnNO && btnNO.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            btnOK && btnOK.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    btnOK.disabled = true;
+                    targetForm.submit();
+                } else {
+                    closeModal();
+                }
+            });
+
+            modal && modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            overlay && overlay.addEventListener('click', closeModal);
+        })();
+
+        // CSRF
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                return '_csrf=' + encodeURIComponent(csrfToken.getAttribute('content'));
+            }
+            return '';
+        }
+    </script>
+
+    <script th:src="@{/js/favorite.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/homeUSER.css}">
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+
+    <!-- Header -->
+    <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+    <!-- Nội dung bắt đầu từ đây -->
+
+    <main class="pt-14 relative">
+
+        <!-- BREADCRUMB: ẩn khi ở trang chủ -->
+        <nav aria-label="Breadcrumb" class="absolute inset-x-0 top-0 z-30 text-[13px] text-gray-600"
+            th:if="${activeParentId != null or activeChildId != null}" th:with="
+          selParent=${activeParentId != null
+              ? categories.^[parentId == #vars.activeParentId]
+              : (activeChildId != null
+                  ? categories.^[children.![childId].contains(#vars.activeChildId)]
+                  : null)},
+          selChild=${activeChildId != null && selParent != null
+              ? selParent.children.^[childId == #vars.activeChildId]
+              : null}
+       ">
+            <div class="max-w-7xl mx-auto px-4 py-2" style="margin-top: 57px;">
+                <ol class="flex items-center gap-1.5 flex-wrap">
+                    <li class="flex items-center gap-1">
+                        <i class="fa-solid fa-house"></i>
+                        <a th:href="@{/StudentMarket}" class="hover:underline">Trang chủ</a>
+                    </li>
+                    <li th:if="${selParent != null}" class="text-gray-400">/</li>
+                    <li th:if="${selParent != null}">
+                        <a class="truncate max-w-[40vw] text-gray-900 font-semibold " th:text="${selParent.name}">Danh mục
+                            cha</a>
+                    </li>
+
+                    <!-- <li th:if="${selChild != null}" class="text-gray-400">/</li>
+                    <li th:if="${selChild != null}">
+                        <a class="hover:underline"
+          
+                        Chỗ ni bỏ danh mục cha ở trên 
+                        th:href="@{'/StudentMarket/category/parent/' + ${selParent.parentId}}"
+                        hết
+
+                        th:href="@{'/StudentMarket/category/child/' + ${selChild.childId}}"
+                        th:text="${selChild.name}">Danh mục con</a>
+                    </li> -->
+                </ol>
+            </div>
+        </nav>
+
+        <!-- Banner Slider -->
+        <div class="banner-container" style="margin-top: 36px;">
+            <div class="banner active">
+                <div class="text">
+                    <h2>Tài liệu hot theo học kỳ</h2>
+                    <p>Combo PDF chất lượng cao - Tải ngay.</p>
+                </div>
+                <div class="image">
+                    <img src="https://smot.bvhttdl.gov.vn/wp-content/uploads/2021/04/1427242000_507f63ecd93d6f77c16bb8b6e0b9fd63tai-lieu-moi.jpg"
+                        alt="Slide 1" />
+                </div>
+            </div>
+
+            <div class="banner">
+                <div class="text">
+                    <h2>Tài liệu ôn tập cuối kỳ</h2>
+                    <p>Đầy đủ, dễ hiểu, tải miễn phí.</p>
+                </div>
+                <div class="image">
+                    <img src="https://tailieuonthi.io.vn/wp-content/uploads/2025/07/de-thi-cuoi-ki-ket-thuc-hoc-phan-Toan-cao-cap-1-cac-truong-co-dap-an-300x300.jpg"
+                        alt="Slide 2" />
+                </div>
+            </div>
+
+            <div class="banner">
+                <div class="text">
+                    <h2>Giáo trình chọn lọc</h2>
+                    <p>Sách cũ giá rẻ - cập nhật thường xuyên.</p>
+                </div>
+                <div class="image">
+                    <img src="https://static.oreka.vn/800-800_5c413b89-f31c-4afb-a668-e07b7b731f76" alt="Slide 3" />
+                </div>
+            </div>
+
+            <!-- Nút điều hướng -->
+            <button class="prev">&#10094;</button>
+            <button class="next">&#10095;</button>
+
+            <!-- Dots -->
+            <div class="dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Gợi ý cho bạn / Tabs danh mục -->
+    <section class="max-w-7xl mx-auto px-4 mt-10" th:with="selParent=${activeParentId != null
+            ? categories.^[parentId == #vars.activeParentId]
+            : (activeChildId != null
+                ? categories.^[children.![childId].contains(#vars.activeChildId)]
+                : null)}">
+        <div class="bg-white rounded-xl shadow p-4">
+            <!-- Tiêu đề -->
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold" th:text="${selParent != null ? selParent.name : 'Gợi ý cho bạn'}">
+                    Gợi ý cho bạn
+                </h2>
+            </div>
+
+            <!-- Khi CHƯA chọn danh mục -->
+            <div class="mt-2 flex flex-wrap gap-2" th:if="${selParent == null}">
+                <a th:href="@{/StudentMarket}" class="px-3 py-1 rounded-md text-sm font-medium border"
+                    th:classappend="' bg-red-600 text-white border-red-600'">
+                    Tất cả
+                </a>
+            </div>
+
+
+            <!-- Khi ĐÃ chọn danh mục cha -->
+            <div class="mt-2 flex flex-wrap gap-2" th:if="${selParent != null}">
+                <!-- Nút Tất cả -->
+                <a th:href="@{'/StudentMarket/category/parent/' + ${selParent.parentId}}"
+                    class="px-3 py-1 rounded-md text-sm font-medium border" th:classappend="${activeChildId == null} ? ' bg-red-600 text-white border-red-600'
+                                             : ' bg-white text-red-600 hover:bg-gray-100 border-red-200'">
+                    Tất cả
+                </a>
+
+                <!-- Các nút con -->
+                <a th:each="c : ${selParent.children}" th:text="${c.name}"
+                    th:href="@{'/StudentMarket/category/child/' + ${c.childId}}" th:attr="data-child-id=${c.childId}"
+                    class="px-3 py-1 rounded-md text-sm font-medium border" th:classappend="${activeChildId == c.childId} ? ' bg-red-600 text-white border-red-600'
+                                                   : ' bg-white text-red-600 hover:bg-gray-100 border-red-200'">
+                </a>
+            </div>
+            <!-- Tabs sort -->
+            <div class="flex items-center space-x-4 mt-4 text-sm font-medium text-gray-600">
+                <span class="text-gray-700">Sắp xếp theo:</span>
+                <button onclick="filterProducts('hot')" class="hover:text-red-600">Nổi bật</button>
+                <button onclick="filterProducts('newest')" class="hover:text-red-600">Mới nhất</button>
+                <button onclick="filterProducts('asc')" class="hover:text-red-600">Giá tăng dần</button>
+                <button onclick="filterProducts('desc')" class="hover:text-red-600">Giá giảm dần</button>
+            </div>
+
+            <!-- Grid sản phẩm -->
+            <div id="productGrid" class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6" style="margin-bottom: 24px;">
+
+                <!-- Nếu không có sản phẩm -->
+                <div id="noProducts" class="col-span-2 md:col-span-4 text-center text-gray-500 py-10"
+                    th:classappend="${#lists.isEmpty(products)} ? '' : ' hidden'">
+                    Chưa có sản phẩm nào.
+                </div>
+                <!-- Sản phẩm -->
+                <article th:each="product : ${products}"
+                    class="product relative w-64 mx-auto bg-white border-2 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-2 cursor-pointer flex flex-col"
+                    th:attr="data-hot=${product.isHot}, data-price=${product.price}, data-created=${product.createdAt != null ? product.createdAt : product.updatedAt}">
+
+                    <div class="relative h-40 w-full">
+                        <!-- Link ảnh sang chi tiết -->
+                        <a th:href="@{/chitietbaidang/{id}(id=${product.productId})}" class="block h-full">
+                            <img th:src="${product.imageUrl}" alt="" class="rounded-md w-full h-full object-cover" />
+
+                            <!-- Nút HOT -->
+                            <span th:if="${product.isHot}"
+                                class="absolute top-3 left-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                Hot
+                            </span>
+
+                            <!-- Overlay ngày đăng + số ảnh -->
+                            <div
+                                class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 flex justify-between items-center rounded-b-md">
+                                <span th:text="${product.relativeTime}">1 ngày trước</span>
+                                <span class="flex items-center">
+                                    <span
+                                        th:text="${'+' + (product.images != null ? product.images.size() : 0)}">+3</span>
+                                    <i class="fa-solid fa-image w-3 h-3 ml-2"></i>
+                                </span>
+                            </div>
+                        </a>
+
+                        <!-- Trái tim (không nằm trong <a>) -->
+                        <button type="button"
+                            th:onclick="|event.preventDefault(); event.stopPropagation(); toggleFavorite(this, ${product.productId})|"
+                            th:data-product-id="${product.productId}"
+                            class="absolute top-2 right-2 z-20 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                            <i class="fa-regular fa-heart" style="color: #6b7280;"></i>
+                        </button>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="mt-2 text-sm flex flex-col flex-grow justify-between">
+                        <!-- Bọc nội dung bằng link riêng -->
+                        <a th:href="@{/chitietbaidang/{id}(id=${product.productId})}" class="block">
+                            <p class="font-semibold text-base line-clamp-2 h-[48px] leading-6 overflow-hidden"
+                                th:text="${product.name}">Tên sản phẩm</p>
+                            <p class="text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap block"
+                                th:text="${product.description}">Mô tả</p>
+                            <div class="flex items-center text-gray-500 mt-1">
+                                <i class="fa-solid fa-location-dot text-gray-500 text-xs mr-1"></i>
+                                <p
+                                    th:text="${product.address != null ? product.address.ward + ', ' + product.address.province : 'Chưa rõ địa điểm'}">
+                                    Địa điểm
+                                </p>
+                            </div>
+                        </a>
+
+                        <p class="text-red-600 font-medium mt-1 text-lg"
+                            th:text="${product.price == 0 ? 'Miễn phí' : #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') + ' đ'}">
+                        </p>
+
+
+                    </div>
+                </article>
+            </div>
+
+        </div>
+
+        <!-- Nút xem thêm -->
+        <div class="mt-4 text-center">
+            <button id="loadMoreBtn"
+                class="px-8 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 border border-gray-300">
+                Xem thêm
+            </button>
+        </div>
+
+    </section>
+
+    <!-- Đã xem gần đây -->
+    <section class="max-w-7xl mx-auto px-4 mt-10 mb-10">
+        <div class="relative bg-white rounded-xl shadow p-4">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold">Đã xem gần đây</h2>
+            </div>
+
+            <!-- Khung sản phẩm -->
+            <div id="recentViewport" class="overflow-hidden px-3 py-6"> <!-- thêm px-4 để có lề trái phải -->
+                <div id="recentClip" class="overflow-hidden mx-auto">
+                    <div id="recentWrapper"
+                        class="flex gap-6 md:gap-8 lg:gap-12 will-change-transform transition-transform duration-500 ease-in-out">
+
+                        <!-- Card sp 1 -->
+                        <div
+                            class="w-64 flex-shrink-0 bg-white border-2 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-2 cursor-pointer flex flex-col">
+                            <!-- Ảnh sản phẩm + Hot + Trái tim -->
+                            <div class="relative h-40 w-full">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                    alt="Nồi cơm" class="rounded-md w-full h-full object-cover" />
+
+                                <!-- Nút HOT (bên trái) -->
+                                <span
+                                    class="absolute top-2 left-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                    Hot
+                                </span>
+                                <!-- Trái tim (bên phải) -->
+                                <button onclick="toggleFavorite(this, 'Nồi cơm Delites')"
+                                    class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                                    <i class="fa-regular fa-heart text-red-600"></i>
+                                </button>
+
+                                <!-- Overlay ngày đăng + số ảnh -->
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 flex justify-between items-center rounded-b-md">
+                                    <span>1 ngày trước</span>
+                                    <span>+3 <img th:src="@{/image/card/image.png}" alt="icon"
+                                            class="w-3 h-3 inline-block"></span>
+                                </div>
+
+                            </div>
+                            <!-- Nội dung -->
+                            <div class="mt-2 text-sm flex flex-col flex-grow justify-between">
+                                <div>
+                                    <p class="font-semibold text-base">Nồi cơm Delites</p>
+                                    <p class="text-gray-500">1.8 lít, bảo hành 12 tháng</p>
+                                </div>
+                                <p class="text-red-600 font-medium mt-1 text-lg">10.000đ</p>
+                            </div>
+                        </div>
+
+
+                        <!-- Card sp 1 -->
+                        <div
+                            class="w-64 flex-shrink-0 bg-white border-2 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-2 cursor-pointer flex flex-col">
+                            <!-- Ảnh sản phẩm + Hot + Trái tim -->
+                            <div class="relative h-40 w-full">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                    alt="Nồi cơm" class="rounded-md w-full h-full object-cover" />
+
+                                <!-- Nút HOT (bên trái) -->
+                                <span
+                                    class="absolute top-2 left-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                    Hot
+                                </span>
+                                <!-- Trái tim (bên phải) -->
+                                <button onclick="toggleFavorite(this, 'Nồi cơm Delites')"
+                                    class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                                    <i class="fa-regular fa-heart text-red-600"></i>
+                                </button>
+
+                                <!-- Overlay ngày đăng + số ảnh -->
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 flex justify-between items-center rounded-b-md">
+                                    <span>1 ngày trước</span>
+                                    <span>+3 <img th:src="@{/image/card/image.png}" alt="icon"
+                                            class="w-3 h-3 inline-block"></span>
+                                </div>
+
+                            </div>
+                            <!-- Nội dung -->
+                            <div class="mt-2 text-sm flex flex-col flex-grow justify-between">
+                                <div>
+                                    <p class="font-semibold text-base">Nồi cơm Delites</p>
+                                    <p class="text-gray-500">1.8 lít, bảo hành 12 tháng</p>
+                                </div>
+                                <p class="text-red-600 font-medium mt-1 text-lg">10.000đ</p>
+                            </div>
+                        </div>
+
+                        <!-- Card sp 1 -->
+                        <div
+                            class="w-64 flex-shrink-0 bg-white border-2 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-2 cursor-pointer flex flex-col">
+                            <!-- Ảnh sản phẩm + Hot + Trái tim -->
+                            <div class="relative h-40 w-full">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                    alt="Nồi cơm" class="rounded-md w-full h-full object-cover" />
+
+                                <!-- Nút HOT (bên trái) -->
+                                <span
+                                    class="absolute top-2 left-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                    Hot
+                                </span>
+                                <!-- Trái tim (bên phải) -->
+                                <button onclick="toggleFavorite(this, 'Nồi cơm Delites')"
+                                    class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                                    <i class="fa-regular fa-heart text-red-600"></i>
+                                </button>
+
+                                <!-- Overlay ngày đăng + số ảnh -->
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 flex justify-between items-center rounded-b-md">
+                                    <span>1 ngày trước</span>
+                                    <span>+3 <img th:src="@{/image/card/image.png}" alt="icon"
+                                            class="w-3 h-3 inline-block"></span>
+                                </div>
+
+                            </div>
+                            <!-- Nội dung -->
+                            <div class="mt-2 text-sm flex flex-col flex-grow justify-between">
+                                <div>
+                                    <p class="font-semibold text-base">Nồi cơm Delites</p>
+                                    <p class="text-gray-500">1.8 lít, bảo hành 12 tháng</p>
+                                </div>
+                                <p class="text-red-600 font-medium mt-1 text-lg">10.000đ</p>
+                            </div>
+                        </div>
+
+                        <!-- Card sp 1 -->
+                        <div
+                            class="w-64 flex-shrink-0 bg-white border-2 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-2 cursor-pointer flex flex-col">
+                            <!-- Ảnh sản phẩm + Hot + Trái tim -->
+                            <div class="relative h-40 w-full">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                    alt="Nồi cơm" class="rounded-md w-full h-full object-cover" />
+
+                                <!-- Nút HOT (bên trái) -->
+                                <span
+                                    class="absolute top-2 left-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                    Hot
+                                </span>
+                                <!-- Trái tim (bên phải) -->
+                                <button onclick="toggleFavorite(this, 'Nồi cơm Delites')"
+                                    class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                                    <i class="fa-regular fa-heart text-red-600"></i>
+                                </button>
+
+                                <!-- Overlay ngày đăng + số ảnh -->
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 flex justify-between items-center rounded-b-md">
+                                    <span>1 ngày trước</span>
+                                    <span>+3 <img th:src="@{/image/card/image.png}" alt="icon"
+                                            class="w-3 h-3 inline-block"></span>
+                                </div>
+
+                            </div>
+                            <!-- Nội dung -->
+                            <div class="mt-2 text-sm flex flex-col flex-grow justify-between">
+                                <div>
+                                    <p class="font-semibold text-base">Nồi cơm Delites</p>
+                                    <p class="text-gray-500">1.8 lít, bảo hành 12 tháng</p>
+                                </div>
+                                <p class="text-red-600 font-medium mt-1 text-lg">10.000đ</p>
+                            </div>
+                        </div>
+
+                        <!-- Card sp 1 -->
+                        <div
+                            class="w-64 flex-shrink-0 bg-white border-2 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-2 cursor-pointer flex flex-col">
+                            <!-- Ảnh sản phẩm + Hot + Trái tim -->
+                            <div class="relative h-40 w-full">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEjyltjwRdW4jYfVehr5-pqgQDGDqeGlYQ2Q&s"
+                                    alt="Nồi cơm" class="rounded-md w-full h-full object-cover" />
+
+                                <!-- Nút HOT (bên trái) -->
+                                <span
+                                    class="absolute top-2 left-2 bg-black/80 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                    Hot
+                                </span>
+                                <!-- Trái tim (bên phải) -->
+                                <button onclick="toggleFavorite(this, 'Nồi cơm Delites')"
+                                    class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:scale-110 transition">
+                                    <i class="fa-regular fa-heart text-red-600"></i>
+                                </button>
+
+                                <!-- Overlay ngày đăng + số ảnh -->
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 flex justify-between items-center rounded-b-md">
+                                    <span>1 ngày trước</span>
+                                    <span>+3 <img th:src="@{/image/card/image.png}" alt="icon"
+                                            class="w-3 h-3 inline-block"></span>
+                                </div>
+
+                            </div>
+                            <!-- Nội dung -->
+                            <div class="mt-2 text-sm flex flex-col flex-grow justify-between">
+                                <div>
+                                    <p class="font-semibold text-base">Nồi cơm Delites</p>
+                                    <p class="text-gray-500">1.8 lít, bảo hành 12 tháng</p>
+                                </div>
+                                <p class="text-red-600 font-medium mt-1 text-lg">10.000đ</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Thêm card -->
+                </div>
+            </div>
+
+            <!-- Nút mũi tên -->
+            <div class="flex justify-end space-x-2 mt-2 pr-4"> <!-- thêm pr-4 cho cân lề phải -->
+                <button onclick="scrollRecent(-1)"
+                    class="bg-gray-100 shadow-md p-2 border-1 rounded-full hover:bg-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button onclick="scrollRecent(1)"
+                    class="bg-gray-100 shadow-md p-2 border-1 rounded-full hover:bg-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overlay cho modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <!-- Modal xác nhận đăng xuất -->
+    <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/homeUSER.js}"></script>
+    <script th:src="@{/js/favorite.js}"></script>
+
+</body>
+
+</html>

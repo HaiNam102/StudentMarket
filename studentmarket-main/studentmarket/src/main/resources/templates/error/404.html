@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ cho header -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+
+    <!-- Header (auto-switch) -->
+    <div sec:authorize="isAuthenticated()" th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+    <div sec:authorize="!isAuthenticated()" th:replace="~{fragments/headerGUEST :: headerGUEST}"></div>
+
+    <main class="pt-14">
+        <section class="max-w-7xl mx-auto px-4">
+            <!-- KHUNG TRONG -->
+            <div class="min-h-[60vh] flex items-center justify-center p-6">
+                <div class="bg-white w-full max-w-md rounded-2xl shadow p-8 text-center">
+                    <div class="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="11" cy="11" r="7" stroke-width="2"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2" stroke-linecap="round"></line>
+                        </svg>
+                    </div>
+
+                    <h1 class="text-xl font-semibold text-gray-900">Đã có lỗi xảy ra!</h1>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Trang bạn đang tìm không tồn tại. Vui lòng kiểm tra lại đường dẫn.
+                    </p>
+
+                    <!-- Thông tin kỹ thuật (ẩn nếu không có) -->
+                    <div class="text-xs text-gray-400 mt-3 space-y-1">
+                        <div th:if="${status}" th:text="'Mã lỗi: ' + ${status}"></div>
+                        <div th:if="${error}" th:text="'Mô tả: ' + ${error}"></div>
+                        <div th:if="${message}" th:text="'Chi tiết: ' + ${message}"></div>
+                        <div th:if="${timestamp}" th:text="'Thời gian: ' + ${timestamp}"></div>
+                    </div>
+
+                    <div class="mt-6 flex items-center justify-center gap-3">
+                        <a th:href="@{/StudentMarket}"
+                            class="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">Về trang chủ</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal/Overlay cho đăng xuất nếu header dùng -->
+        <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+        <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+        <!-- FOOTER -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </main>
+
+    <!-- JS của phần Header (để dropdown/overlay hoạt động) -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = {
+            menuBtn: 'menuDropdown',
+            favBtn: 'favDropdown',
+            notiBtn: 'notiDropdown',
+            avatarBtn: 'dropdownMenu'
+        };
+
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+
+            btn && btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id)?.classList.add('hidden')
+                );
+
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    overlay.classList.add('hidden');
+                } else {
+                    menu.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id =>
+                document.getElementById(id)?.classList.add('hidden')
+            );
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId =>
+                document.getElementById(btnId)?.contains(e.target)
+            )) {
+                overlay.classList.add('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id)?.classList.add('hidden')
+                );
+            }
+        });
+
+        // Modal đăng xuất (nếu header có form logout)
+        (() => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('logoutConfirm');
+            const btnOK = document.getElementById('logoutSubmit');
+            const btnNO = document.getElementById('logoutCancel');
+
+            let targetForm = null;
+
+            function openModal(form) {
+                targetForm = form;
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+            function closeModal() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                targetForm = null;
+            }
+
+            document.querySelectorAll('.js-logout-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    if (!form) return;
+                    openModal(form);
+                });
+            });
+
+            btnNO && btnNO.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            btnOK && btnOK.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    btnOK.disabled = true;
+                    targetForm.submit();
+                } else {
+                    closeModal();
+                }
+            });
+
+            modal && modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            overlay && overlay.addEventListener('click', closeModal);
+        })();
+    </script>
+    <script th:src="@{/js/favorite.js}"></script>
+
+</body>
+
+</html>

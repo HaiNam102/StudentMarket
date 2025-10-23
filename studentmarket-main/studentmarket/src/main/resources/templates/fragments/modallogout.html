@@ -1,0 +1,22 @@
+<div id="logoutConfirm" th:fragment="modallogout" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4" role="dialog"
+    aria-modal="true" aria-labelledby="logoutTitle">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+        <div class="px-5 pt-5">
+            <h3 id="logoutTitle" class="text-lg font-semibold text-gray-900 text-center">
+                Bạn có muốn đăng xuất?
+            </h3>
+            <p class="text-sm text-gray-600 text-center mt-1">
+                Hành động này sẽ đưa bạn về trang khách.
+            </p>
+        </div>
+        <div class="flex items-center justify-center gap-3 px-5 py-5">
+            <button id="logoutCancel"
+                class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100">
+                Không
+            </button>
+            <button id="logoutSubmit" class="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">
+                Có
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <base th:href="@{/}" />
+    <meta charset="UTF-8" />
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+
+    <!-- Header -->
+    <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+    <!-- MAIN -->
+    <main class="pt-14 pb-10">
+        <div class="max-w-7xl mx-auto px-4 pt-9">
+
+            <!-- Phần trên: Hồ sơ (PROFILE) -->
+            <div th:replace="~{fragments/hosoprofile :: hosoprofile}"></div>
+
+            <!-- Layout 2 cột -->
+            <div class="flex flex-col md:flex-row gap-6">
+
+                <!-- Main Container -->
+                <div class="flex flex-col md:flex-row gap-6">
+
+                    <!-- Sidebar -->
+                    <aside class="md:col-span-3">
+                        <nav class="bg-white rounded-2xl shadow divide-y top-24 w-[245px]">
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-tl-2xl rounded-tr-2xl"
+                                th:href="@{/tongquan}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/home.png}" alt="Tổng Quan"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Tổng Quan</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 bg-red-50" th:href="@{/thongtintaikhoan}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/setting-red.png}" alt="Thông tin tài khoản"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-red-600 font-semibold">Thông tin tài khoản</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/quanlybaidang}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/edit.png}" alt="Quản lí bài đăng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Quản lý bài đăng</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/lichsugiaodich}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/file.png}" alt="Lịch sử giao dịch"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Lịch sử giao dịch</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/tichluydiem}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/tichluy.png}" alt="Tích lũy điểm"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Tích lũy điểm</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/danhgia}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/danhgia.png}" alt="Đánh giá"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Đánh giá</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/gopy}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/gopy.png}" alt="Góp ý & hỗ trợ"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Góp ý & hỗ trợ</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/dieukhoansudung}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/dieukhoan.png}" alt="Điều khoản sử dụng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Điều khoản sử dụng</span>
+                            </a>
+
+                            <form th:action="@{/logout}" method="post"
+                                class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-bl-2xl rounded-br-2xl">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="button"
+                                    class="js-logout-trigger flex items-center gap-3 w-full text-left">
+                                    <!-- Icon bằng ảnh -->
+                                    <img th:src="@{/image/thongtintaikhoan/dangxuat.png}" alt="Đăng xuất"
+                                        class="w-6 h-6 object-cover" />
+                                    <!-- Nội dung -->
+                                    <span class="text-gray-800 font-semibold">Đăng xuất</span>
+                                </button>
+                            </form>
+                        </nav>
+                    </aside>
+
+                    <!-- Nội dung chính: chỉ còn phần tài khoản + nơi đăng nhập -->
+                    <section class="flex-1 space-y-6">
+
+                        <!-- Thông tin cá nhân -->
+                        <div class="bg-white rounded-2xl shadow px-4 py-2">
+                            <div class="flex items-center justify-between px-5 py-4 border-b"
+                                style="width: 947px;padding-top: 10px;">
+                                <h3 class="font-semibold text-gray-900">Thông tin cá nhân</h3>
+                                <button id="btnEditInfo"
+                                    class="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-md border border-gray-200 hover:border-red-300 hover:text-red-600 transition">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                    Chỉnh sửa
+                                </button>
+                            </div>
+
+                            <!-- View -->
+                            <div id="infoView" class="px-5 py-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
+
+                                    <div class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Họ và tên<span
+                                                class="text-red-500">*</span></span>
+                                        <p class="font-medium text-gray-900" th:text="${user.fullName}">—</p>
+                                    </div>
+
+                                    <div class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Email<span class="text-red-500">*</span></span>
+                                        <p class="font-medium text-gray-900" th:text="${user.email}">—</p>
+                                    </div>
+
+                                    <div class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Giới tính</span>
+                                        <p class="font-medium text-gray-900"
+                                            th:text="${user.gender == 'MALE' ? 'Nam' : (user.gender == 'FEMALE' ? 'Nữ' : (user.gender == null ? '—' : 'Khác'))}">
+                                            —</p>
+                                    </div>
+
+                                    <div class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Số điện thoại<span
+                                                class="text-red-500">*</span></span>
+                                        <p class="font-medium text-gray-900"
+                                            th:text="${user.phone != null && !#strings.isEmpty(user.phone) ? user.phone : '—'}">
+                                            —</p>
+                                    </div>
+
+                                    <div class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Ngày sinh</span>
+                                        <p class="font-medium text-gray-900"
+                                            th:text="${user.dateOfBirth != null ? #temporals.format(user.dateOfBirth,'dd/MM/yyyy') : '—'}">
+                                            —</p>
+                                    </div>
+
+                                    <div class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Địa chỉ</span>
+                                        <p class="font-medium text-gray-900"
+                                            th:text="${user.address != null && !#strings.isEmpty(user.address) ? user.address : '—'}">
+                                            —</p>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- Edit -->
+                            <form id="infoEdit" class="hidden px-5 py-4" method="post" th:action="@{/thongtintaikhoan}">
+                                <!-- CSRF -->
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
+                                    <!-- Họ và tên -->
+                                    <label class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Họ và tên<span
+                                                class="text-red-500">*</span></span>
+                                        <input type="text" name="fullName" th:value="${user.fullName}" required
+                                            class="flex-1 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    </label>
+
+                                    <!-- Email (không sửa) -->
+                                    <label class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Email<span class="text-red-500">*</span></span>
+                                        <input type="email" th:value="${user.email}" disabled
+                                            class="flex-1 px-3 py-2 rounded-md border border-gray-300 bg-gray-50">
+                                    </label>
+
+                                    <!-- Giới tính -->
+                                    <label class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Giới tính</span>
+                                        <select name="gender"
+                                            class="flex-1 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <option value="MALE" th:selected="${user.gender} == 'MALE'">Nam</option>
+                                            <option value="FEMALE" th:selected="${user.gender} == 'FEMALE'">Nữ</option>
+                                            <option value="OTHER" th:selected="${user.gender} == 'OTHER'">Khác</option>
+                                        </select>
+                                    </label>
+
+                                    <!-- Số điện thoại -->
+                                    <label class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Số điện thoại<span
+                                                class="text-red-500">*</span></span>
+
+                                        <div class="flex-1">
+                                            <input id="phone" name="phone" type="tel" inputmode="numeric" maxlength="10"
+                                                minlength="10" pattern="0\d{9}" required
+                                                title="Số điện thoại không hợp lệ." th:value="${user.phone}"
+                                                oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)"
+                                                class="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <small id="phoneError" class="text-xs text-red-600 hidden">
+                                                Số điện thoại không hợp lệ.
+                                            </small>
+                                        </div>
+                                    </label>
+
+                                    <!-- Ngày sinh -->
+                                    <label class="flex items-start gap-4">
+                                        <span class="w-36 text-gray-500">Ngày sinh</span>
+                                        <input type="date" name="dateOfBirth"
+                                            th:value="${user.dateOfBirth != null ? #temporals.format(user.dateOfBirth,'yyyy-MM-dd') : ''}"
+                                            class="flex-1 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    </label>
+
+                                    <!-- Địa chỉ -->
+                                    <label class="flex items-start gap-4 md:col-span-2">
+                                        <span class="w-36 text-gray-500">Địa chỉ</span>
+                                        <input type="text" name="address" th:value="${user.address}"
+                                            class="flex-1 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    </label>
+                                </div>
+
+                                <div class="flex items-center justify-end gap-3 pt-4 border-t mt-4">
+                                    <button type="button" id="btnCancelEdit"
+                                        class="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-50">Huỷ</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-500">Lưu thay
+                                        đổi</button>
+                                </div>
+                            </form>
+
+                        </div>
+
+                        <!-- Nơi bạn đăng nhập -->
+                        <div class="bg-white rounded-3xl shadow sm:px-9 py-4">
+                            <div class="flex items-start justify-between gap-4 border-b pb-3">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Nơi bạn đăng nhập</h3>
+                                    <p class="text-xs text-gray-500 mt-0.5">Xem những thiết bị nào đã đăng nhập vào tài
+                                        khoản của bạn.</p>
+                                </div>
+                                <a id="selectAll" href="#"
+                                    class="px-4 py-2 text-sm font-medium rounded-md border border-red-300 text-red-600 hover:bg-red-50 transition whitespace-nowrap self-center">
+                                    Chọn tất cả
+                                </a>
+                            </div>
+
+                            <!-- ĐẶT TOÀN BỘ LIST + NÚT BÊN TRONG 1 FORM -->
+                            <form id="logoutForm" th:action="@{/devices/logout}" method="post" class="pt-2">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                                <ul class="divide-y">
+                                    <li th:each="s : ${sessions}"
+                                        class="login-item relative flex items-start justify-between gap-4 py-4">
+                                        <!-- Checkbox chỉ hiển thị nếu KHÔNG phải phiên hiện tại -->
+                                        <input type="checkbox" th:if="${!s.isCurrent}" name="sessionIds"
+                                            th:value="${s.sessionId}" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2
+                      w-4 h-4 appearance-none rounded-full border border-gray-400
+                      grid place-content-center
+                      focus:outline-none
+                      checked:bg-red-600 checked:border-red-600" />
+
+                                        <div class="pr-8 sm:pr-10">
+                                            <p
+                                                class="text-sm font-semibold text-gray-900 flex flex-wrap items-center gap-2">
+                                                <span th:text="${s.ua}">User-Agent</span>
+                                                <span class="text-gray-400">|</span>
+                                                <span>ID:
+                                                    <span
+                                                        th:text="${s['deviceId'] != null ? #strings.abbreviate(s['deviceId'],8) : '—'}">—</span>
+                                                </span>
+                                                <span>• IP:
+                                                    <span th:text="${s['ip'] ?: '—'}">—</span>
+                                                </span>
+                                            </p>
+
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                <span>Đăng nhập:</span>
+                                                <span th:text="${s.creation}">13/09/2025 - 04:48</span>
+                                                &nbsp;•&nbsp; Lần truy cập gần nhất:
+                                                <span th:text="${s.lastAccess}">13/09/2025 - 05:10</span>
+                                            </p>
+                                        </div>
+
+                                        <div class="pt-0.5" th:if="${s.isCurrent}">
+                                            <span class="text-sm font-medium text-green-600">Thiết bị này</span>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <!-- Nút đăng xuất -->
+                                <div class="pt-4">
+                                    <button id="logoutBtn" type="submit"
+                                        class="mx-auto block px-6 py-2 rounded-full border border-red-300 text-red-600 font-medium shadow-sm hover:bg-red-600 hover:text-white transition">
+                                        Đăng xuất
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+
+                    </section>
+
+                    <!-- POPUP NOTIFICATIONS -->
+                    <div class="fixed top-16 right-6 z-[9999] space-y-3">
+
+                        <!-- Success toast -->
+                        <div th:if="${success}" role="alert" aria-live="assertive" class="toast opacity-0 translate-y-2 transition-all duration-300
+              bg-white border border-green-300 rounded-xl shadow-lg overflow-hidden max-w-sm">
+                            <div class="flex items-start gap-3 px-4 py-3">
+                                <!-- icon -->
+                                <svg class="w-5 h-5 mt-0.5 text-green-600" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-green-700">Thành công</p>
+                                    <p class="text-sm text-gray-700" th:text="${success}">Đã lưu thay đổi!</p>
+                                </div>
+                                <button type="button" class="ml-2 text-gray-400 hover:text-gray-600"
+                                    onclick="closeToast(this)">✕</button>
+                            </div>
+                            <div class="h-1 bg-green-500 w-0 progress"></div>
+                        </div>
+
+                        <!-- Error toast -->
+                        <div th:if="${error}" role="alert" aria-live="assertive" class="toast opacity-0 translate-y-2 transition-all duration-300
+              bg-white border border-red-300 rounded-xl shadow-lg overflow-hidden max-w-sm">
+                            <div class="flex items-start gap-3 px-4 py-3">
+                                <!-- icon -->
+                                <svg class="w-5 h-5 mt-0.5 text-red-600" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v4m0 4h.01M5.07 19h13.86A2 2 0 0021 17.13L13.93 4.5a2 2 0 00-3.86 0L3 17.13A2 2 0 005.07 19z" />
+                                </svg>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-red-700">Có lỗi</p>
+                                    <p class="text-sm text-gray-700" th:text="${error}">Đã có lỗi xảy ra!</p>
+                                </div>
+                                <button type="button" class="ml-2 text-gray-400 hover:text-gray-600"
+                                    onclick="closeToast(this)">✕</button>
+                            </div>
+                            <div class="h-1 bg-red-500 w-0 progress"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay cho modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <!-- Modal xác nhận đăng xuất -->
+    <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    <!-- Overlay riêng cho modal đăng xuất thiết bị -->
+    <div id="deviceModalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+
+    <!-- Modal đăng xuất thiết bị (RIÊNG) -->
+    <div id="deviceLogoutModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4" role="dialog"
+        aria-modal="true" aria-labelledby="deviceLogoutTitle">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+            <div class="px-5 pt-5">
+                <h3 id="deviceLogoutTitle" class="text-lg font-semibold text-gray-900 text-center">
+                    Bạn có muốn đăng xuất các thiết bị đã chọn?
+                </h3>
+                <!-- Không có mô tả phụ -->
+            </div>
+            <div class="flex items-center justify-center gap-3 px-5 py-5">
+                <button id="deviceLogoutCancel"
+                    class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100">
+                    Không
+                </button>
+                <button id="deviceLogoutSubmit" class="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">
+                    Có
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- JS không cho chọn ngày trong tương lai -->
+    <script>
+        (function setDobMaxToday() {
+            const dob = document.querySelector('input[name="dateOfBirth"]');
+            if (!dob) return;
+            const today = new Date().toISOString().slice(0, 10); // yyyy-MM-dd
+            dob.max = today;
+        })();
+    </script>
+
+    <!-- JS POPUP thông báo thông tin tài khoản   -->
+    <script>
+        function closeToast(btnOrObj) {
+            const t = btnOrObj.closest ? btnOrObj.closest('.toast') : btnOrObj;
+            if (!t) return;
+            t.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => t.remove(), 250);
+        }
+
+        // animate all toasts on page
+        document.querySelectorAll('.toast').forEach((t) => {
+            requestAnimationFrame(() => {
+                // show
+                t.classList.remove('opacity-0', 'translate-y-2');
+                // progress bar
+                const bar = t.querySelector('.progress');
+                if (bar) {
+                    bar.style.transition = 'width 4s linear';
+                    requestAnimationFrame(() => bar.style.width = '100%');
+                }
+                // auto hide after 4s
+                setTimeout(() => closeToast(t), 4200);
+            });
+        });
+    </script>
+
+    <script>
+        //JS đăng xuất thiết bị
+        (() => {
+            const overlay = document.getElementById('deviceModalOverlay');
+            const modal = document.getElementById('deviceLogoutModal');
+            const btnOK = document.getElementById('deviceLogoutSubmit');
+            const btnNO = document.getElementById('deviceLogoutCancel');
+            const titleEl = document.getElementById('deviceLogoutTitle');
+
+            let targetForm = null;
+            let lastFocus = null;
+
+            function open(form, count = null) {
+                targetForm = form;
+                lastFocus = document.activeElement;
+
+                if (titleEl) {
+                    titleEl.textContent = count && count > 0
+                        ? `Bạn có muốn đăng xuất ${count} thiết bị đã chọn?`
+                        : 'Bạn có muốn đăng xuất các thiết bị đã chọn?';
+                }
+
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+
+                // focus nút "Có"
+                setTimeout(() => btnOK?.focus(), 0);
+                document.addEventListener('keydown', onKeyDown);
+            }
+
+            function close() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                document.removeEventListener('keydown', onKeyDown);
+
+                // restore
+                if (titleEl) titleEl.textContent = 'Bạn có muốn đăng xuất các thiết bị đã chọn?';
+                targetForm = null;
+                if (lastFocus) lastFocus.focus();
+            }
+
+            function onKeyDown(e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    close();
+                }
+                if (e.key === 'Tab') {
+                    // trap focus trong modal (2 nút)
+                    const focusables = [btnNO, btnOK].filter(Boolean);
+                    if (!focusables.length) return;
+                    const idx = focusables.indexOf(document.activeElement);
+                    if (e.shiftKey) {
+                        if (idx <= 0) { e.preventDefault(); focusables[focusables.length - 1].focus(); }
+                    } else {
+                        if (idx === focusables.length - 1) { e.preventDefault(); focusables[0].focus(); }
+                    }
+                }
+            }
+
+            // expose để nơi khác gọi
+            window.DeviceLogoutModal = { open, close };
+
+            // nút "Không"
+            btnNO?.addEventListener('click', (e) => { e.preventDefault(); close(); });
+
+            // nút "Có"
+            btnOK?.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    btnOK.disabled = true; // tránh submit đôi
+                    targetForm.submit();
+                } else {
+                    close();
+                }
+            });
+
+            // click ra ngoài hộp => đóng
+            modal?.addEventListener('click', (e) => { if (e.target === modal) close(); });
+            overlay?.addEventListener('click', close);
+        })();
+        //JS đi chung với đăng xuất thiết bị
+        (() => {
+            const form = document.getElementById('logoutForm');
+            const selectAll = document.getElementById('selectAll');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            function boxes() {
+                return Array.from(document.querySelectorAll('#logoutForm .login-item input[type="checkbox"]'));
+            }
+            function anyChecked() { return boxes().some(b => b.checked); }
+            function updateBtnState() {
+                const enabled = anyChecked();
+                if (logoutBtn) {
+                    logoutBtn.disabled = !enabled;
+                    logoutBtn.classList.toggle('opacity-50', !enabled);
+                    logoutBtn.classList.toggle('cursor-not-allowed', !enabled);
+                }
+            }
+
+            // Chọn tất cả
+            selectAll?.addEventListener('click', (e) => {
+                e.preventDefault();
+                const bs = boxes();
+                if (!bs.length) return;
+                const shouldCheck = bs.some(b => !b.checked);
+                bs.forEach(b => b.checked = shouldCheck);
+                updateBtnState();
+            });
+
+            // Bật/tắt nút theo checkbox
+            boxes().forEach(cb => cb.addEventListener('change', updateBtnState));
+            updateBtnState();
+
+            // Mở modal RIÊNG để xác nhận
+            form?.addEventListener('submit', (e) => {
+                const selected = document.querySelectorAll('#logoutForm .login-item input[type="checkbox"]:checked');
+                if (selected.length === 0) { e.preventDefault(); return; }
+                e.preventDefault();
+
+                if (window.DeviceLogoutModal?.open) {
+                    window.DeviceLogoutModal.open(form, selected.length);
+                } else {
+                    // fallback
+                    if (confirm(`Bạn có chắc muốn đăng xuất ${selected.length} thiết bị đã chọn?`)) {
+                        form.submit();
+                    }
+                }
+            });
+        })();
+    </script>
+
+    <!-- JS dropdown toggle + edit form -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = {
+            menuBtn: 'menuDropdown',
+            favBtn: 'favDropdown',
+            notiBtn: 'notiDropdown',
+            avatarBtn: 'dropdownMenu'
+        };
+
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    overlay.classList.add('hidden');
+                } else {
+                    menu.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id =>
+                document.getElementById(id).classList.add('hidden')
+            );
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId =>
+                document.getElementById(btnId).contains(e.target)
+            )) {
+                overlay.classList.add('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+            }
+        });
+
+        // Toggle chế độ chỉnh sửa thông tin
+        const btnEdit = document.getElementById('btnEditInfo');
+        const infoView = document.getElementById('infoView');
+        const infoEdit = document.getElementById('infoEdit');
+        const btnCancel = document.getElementById('btnCancelEdit');
+
+        btnEdit.addEventListener('click', () => {
+            infoView.classList.add('hidden');
+            infoEdit.classList.remove('hidden');
+        });
+
+        btnCancel.addEventListener('click', () => {
+            infoEdit.classList.add('hidden');
+            infoView.classList.remove('hidden');
+        });
+
+    </script>
+
+    <!-- JS validate số điện thoại -->
+    <script>
+        (function () {
+            const form = document.getElementById('infoEdit');
+            const phoneInput = document.getElementById('phone');
+            const phoneError = document.getElementById('phoneError');
+            if (!form || !phoneInput) return;
+
+            function validPhone(v) {
+                return /^0\d{9}$/.test(v); // Bắt đầu 0 và tổng 10 chữ số
+            }
+
+            // Hiển thị lỗi realtime (tùy chọn)
+            phoneInput.addEventListener('input', () => {
+                const ok = validPhone(phoneInput.value);
+                phoneError.classList.toggle('hidden', ok);
+                phoneInput.classList.toggle('border-red-500', !ok);
+                phoneInput.classList.toggle('focus:ring-red-500', !ok);
+            });
+
+            form.addEventListener('submit', (e) => {
+                const v = (phoneInput.value || '').trim();
+                if (!validPhone(v)) {
+                    e.preventDefault();
+                    phoneError.classList.remove('hidden');
+                    phoneInput.classList.add('border-red-500', 'focus:ring-red-500');
+                    phoneInput.focus();
+                }
+            });
+        })();
+
+        // JS xử lý đăng xuất
+        (() => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('logoutConfirm');
+            const btnOK = document.getElementById('logoutSubmit');
+            const btnNO = document.getElementById('logoutCancel');
+
+            let targetForm = null; // form sẽ được submit khi bấm "Có"
+
+            function openModal(form) {
+                targetForm = form;
+                overlay.classList.remove('hidden');
+                modal.classList.remove('hidden');
+            }
+            function closeModal() {
+                overlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                targetForm = null;
+            }
+
+            // Bắt các nút logout
+            document.querySelectorAll('.js-logout-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const form = btn.closest('form');
+                    if (!form) return;
+                    openModal(form);
+                });
+            });
+
+            // Nút "Không"
+            btnNO.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            // Nút "Có"
+            btnOK.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (targetForm) {
+                    // tránh submit đôi
+                    btnOK.disabled = true;
+                    targetForm.submit();
+                } else {
+                    closeModal();
+                }
+            });
+
+            // Click ra ngoài hộp => đóng
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            overlay.addEventListener('click', closeModal);
+        })();
+
+        // Hàm lấy CSRF token
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                return '_csrf=' + encodeURIComponent(csrfToken.getAttribute('content'));
+            }
+            return '';
+        }
+    </script>
+
+    <!-- JS check sđt mở form điền phone-->
+    <script>
+        (function () {
+            try {
+                if (sessionStorage.getItem('openPhoneEdit') === '1') {
+                    sessionStorage.removeItem('openPhoneEdit');
+                    const infoView = document.getElementById('infoView');
+                    const infoEdit = document.getElementById('infoEdit');
+                    infoView?.classList.add('hidden');
+                    infoEdit?.classList.remove('hidden');
+
+                    const phone = document.getElementById('phone');
+                    if (phone) {
+                        setTimeout(() => {
+                            phone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            phone.focus();
+                        }, 50);
+                    }
+                }
+            } catch (_) { }
+        })();
+    </script>
+
+    <!-- JS chỉnh sửa thông tin ở xem profile nhảy qua thông tin tài khoản mở form để sửa -->
+    <script>
+        (function () {
+            try {
+                if (sessionStorage.getItem('autoOpenEdit') === '1') {
+                    sessionStorage.removeItem('autoOpenEdit');
+
+                    const btn = document.getElementById('btnEditInfo');
+                    const infoView = document.getElementById('infoView');
+                    const infoEdit = document.getElementById('infoEdit');
+
+                    if (btn && infoView && infoEdit) {
+                        // chỉ click khi đang ở chế độ xem
+                        if (infoEdit.classList.contains('hidden')) btn.click();
+
+                        // cuộn và focus input đầu tiên có thể sửa
+                        btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => {
+                            const firstEditable = document.querySelector(
+                                '#infoEdit input:not([disabled]), #infoEdit select, #infoEdit textarea'
+                            );
+                            firstEditable?.focus();
+                        }, 50);
+                    }
+                }
+            } catch (_) { }
+        })();
+    </script>
+
+    <script th:src="@{/js/favorite.js}"></script>
+
+</body>
+
+</html>

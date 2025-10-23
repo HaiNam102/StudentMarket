@@ -1,0 +1,297 @@
+<!-- Header -->
+<header th:fragment="headerUSER" class="fixed top-0 left-0 w-full bg-red-600 text-white shadow-md z-50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
+
+        <!-- Danh mục -->
+        <div class="relative">
+            <div class="flex items-center space-x-4">
+                <button id="menuBtn" title="Danh mục"
+                    class="w-8 h-8 flex items-center justify-center bg-white text-red-600 rounded-md shadow hover:bg-gray-200">
+                    <img th:src="@{/image/header/menu.png}" alt="Menu" class="w-5 h-5" />
+                </button>
+                <a th:href="@{/StudentMarket}" class="text-xl font-extrabold transition">STUDENT MARKET</a>
+            </div>
+
+            <div id="menuDropdown"
+                class="hidden absolute left-0 mt-4 w-72 bg-white text-gray-700 rounded-md shadow-lg z-40">
+
+                <div th:each="p : ${categories}" class="relative group">
+                    <a th:href="@{'/StudentMarket/category/parent/' + ${p.parentId}}"
+                        class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-100 rounded-md">
+
+                        <div class="flex items-center space-x-2">
+                            <!-- Fallback nếu iconPath rỗng -->
+                            <img th:if="${#strings.isEmpty(p.iconPath)}" th:src="@{/image/header/other.png}" alt="icon"
+                                class="w-5 h-5" />
+
+                            <!-- Có iconPath trong DB thì dùng -->
+                            <img th:if="${!#strings.isEmpty(p.iconPath)}" th:src="${p.iconPath}" alt="icon"
+                                class="w-5 h-5" />
+
+                            <span th:text="${p.name}">Danh mục cha</span>
+                        </div>
+
+                        <!-- Ảnh mũi tên -->
+                        <img th:src="@{/image/header/next.png}" alt="arrow" class="w-4 h-4" />
+                    </a>
+
+                    <div th:if="${!#lists.isEmpty(p.children)}"
+                        class="absolute top-0 left-full ml-1 hidden group-hover:block bg-white text-gray-700 rounded-md shadow-lg"
+                        style="width: 220px">
+                        <a th:each="c : ${p.children}" th:href="@{'/StudentMarket/category/child/' + ${c.childId}}"
+                            class="block px-4 py-2 hover:bg-gray-100 rounded-md" th:text="${c.name}">Danh mục
+                            con</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh Tìm kiếm -->
+        <div class="flex-1 px-4 flex justify-center">
+            <div class="relative w-full max-w-md">
+                <input type="text" placeholder="Tìm đồ dùng cũ..."
+                    class="w-full px-4 py-2 pl-10 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400" />
+                <button id="searchBtn"
+                    class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-500">
+                    <!-- Button kính lúp -->
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z">
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Icons + buttons Yêu thích với thông báo -->
+        <div class="flex items-center space-x-3">
+            <!-- Yêu thích -->
+            <div class="relative">
+                <button id="favBtn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500">
+                    <img th:src="@{/image/header/like.png}" alt="Yêu Thích" class="w-6 h-6" />
+                    <span id="favoriteCount"
+                        class="absolute -top-1 -right-1 bg-orange-400 text-white font-bold text-xs rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center hidden">0</span>
+                </button>
+                <div id="favDropdown"
+                    class="hidden absolute right-0 mt-4 w-[300px] bg-white text-gray-700 rounded-md shadow-lg z-40">
+                    <p class="px-4 py-2 font-semibold border-b">Yêu thích</p>
+                    <div class="text-sm text-gray-500">Đang tải...</div>
+                </div>
+            </div>
+            <!-- Thông báo -->
+            <div class="relative">
+                <button id="notiBtn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500">
+                    <img th:src="@{/image/header/notification.png}" alt="Thông báo" class="w-6 h-6" />
+                </button>
+                <div id="notiDropdown"
+                    class="hidden absolute right-0 mt-4 w-64 bg-white text-gray-700 rounded-md shadow-lg z-40">
+                    <p class="px-4 py-2 font-semibold border-b">Thông báo</p>
+                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 hover:rounded-md">Nguyễn An đã nhắn bạn về
+                        "Laptop cũ"</a>
+                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 hover:rounded-md">Sản phẩm "Xe đạp thể
+                        thao" đã có người quan tâm</a>
+                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 hover:rounded-md">Bạn có 1 đánh giá mới</a>
+                </div>
+            </div>
+
+            <!-- Button Đăng bài -->
+            <a th:href="@{/dangbai}" data-go-post class="bg-white text-red-600 px-3 py-1 rounded-md hover:bg-gray-200">
+                Đăng bài
+            </a>
+
+
+            <!-- Avatar + dropdown -->
+            <div class="relative">
+                <button id="avatarBtn"
+                    class="bg-red-500 p-2 rounded-full flex items-center space-x-1 hover:bg-red-400 relative overflow-visible">
+                    <img th:src="${session.picture} != null ? ${session.picture} : @{/image/header/profile-user.png}"
+                        alt="Avatar" class="w-7 h-7 rounded-full object-cover -m-1" />
+                    <svg class="w-7 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 10 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                        </path>
+                    </svg>
+                </button>
+
+                <!-- Dropdown menu -->
+                <div id="dropdownMenu"
+                    class="hidden absolute right-0 mt-3.5 w-72 bg-white rounded-xl shadow-lg z-40 overflow-hidden">
+                    <!-- Header: Xin chào User -->
+                    <div class="p-4 border-b flex justify-center bg-gray-100">
+                        <p class="text-sm text-black leading-snug text-center">
+                            Xin chào,
+                            <a th:if="${session.user_id != null}"
+                               th:href="@{/StudentMarket/xemprofile/{id}(id=${session.user_id})}" class="font-semibold hover:underline"
+                               th:text="${session.full_name} ?: 'Người dùng'">Người dùng</a>
+                        </p>
+                    </div>
+
+                    <!-- Menu items -->
+                    <div class="flex flex-col">
+                        <a th:href="@{/thongtintaikhoan}"
+                            class="flex items-center justify-between px-4 py-3 hover:bg-gray-100">
+                            <div class="flex items-center space-x-4">
+                                <img th:src="@{/image/header_user/setting.png}" alt="icon" class="w-5 h-5" />
+                                <span class="text-gray-700">Thông tin tài khoản</span>
+                            </div>
+                            <img th:src="@{/image/header/next.png}" alt="arrow" class="w-4 h-4" />
+                        </a>
+                        <a th:href="@{/quanlybaidang}"
+                            class="flex items-center justify-between px-4 py-3 hover:bg-gray-100">
+                            <div class="flex items-center space-x-4">
+                                <img th:src="@{/image/header_user/edit.png}" alt="icon" class="w-5 h-5" />
+                                <span class="text-gray-700">Quản lý bài đăng</span>
+                            </div>
+                            <img th:src="@{/image/header/next.png}" alt="arrow" class="w-4 h-4" />
+                        </a>
+                        <a th:href="@{/lichsugiaodich}"
+                            class="flex items-center justify-between px-4 py-3 hover:bg-gray-100">
+                            <div class="flex items-center space-x-4">
+                                <img th:src="@{/image/header_user/file.png}" alt="icon" class="w-5 h-5" />
+                                <span class="text-gray-700">Lịch sử giao dịch</span>
+                            </div>
+                            <img th:src="@{/image/header/next.png}" alt="arrow" class="w-4 h-4" />
+                        </a>
+                        <a th:href="@{/gopy}" class="flex items-center justify-between px-4 py-3 hover:bg-gray-100">
+                            <div class="flex items-center space-x-4">
+                                <img th:src="@{/image/header_user/gopy.png}" alt="icon" class="w-5 h-5" />
+                                <span class="text-gray-700">Góp ý & hỗ trợ</span>
+                            </div>
+                            <img th:src="@{/image/header/next.png}" alt="arrow" class="w-4 h-4" />
+                        </a>
+                        <a th:href="@{/dieukhoansudung}"
+                            class="flex items-center justify-between px-4 py-3 hover:bg-gray-100">
+                            <div class="flex items-center space-x-4">
+                                <img th:src="@{/image/header_user/information.png}" alt="icon" class="w-5 h-5" />
+                                <span class="text-gray-700">Điều khoản sử dụng</span>
+                            </div>
+                            <img th:src="@{/image/header/next.png}" alt="arrow" class="w-4 h-4" />
+                        </a>
+                        <form th:action="@{/logout}" method="post" class="w-full">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="button"
+                                class="js-logout-trigger w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100">
+                                <div class="flex items-center space-x-4">
+                                    <img th:src="@{/image/header_user/logout.png}" alt="icon" class="w-5 h-5" />
+                                    <span class="text-red-600">Đăng xuất</span>
+                                </div>
+                                <img th:src="@{/image/header/next.png}" alt="arrow" class="w-4 h-4" />
+                            </button>
+                        </form>
+
+                    </div>
+
+                    <!-- Footer: ngôn ngữ -->
+                    <div class="border-t px-4 py-2 flex justify-center items-center text-xs font-medium bg-gray-200">
+                        <a href="#" class="text-red-600">Tiếng Việt</a>
+                        <span class="mx-1 text-gray-500">/</span>
+                        <a href="#" class="text-gray-800 hover:text-black">English</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay & Modal: yêu cầu thêm số điện thoại (dùng ở mọi trang) -->
+    <div id="needPhoneOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <div id="needPhoneModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4" role="dialog"
+        aria-modal="true" aria-labelledby="needPhoneTitle">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+            <div class="px-5 pt-6 text-center">
+                <div class="mx-auto mb-3 w-12 h-12 rounded-full bg-red-100 grid place-items-center">
+                    <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.81.3 1.6.57 2.34a2 2 0 0 1-.45 2.11L8 9.17a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.74.27 1.53.45 2.34.57A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                </div>
+
+                <h3 id="needPhoneTitle" class="text-lg font-semibold text-gray-900">Bổ sung số điện thoại</h3>
+                <p class="text-sm text-gray-600 mt-1">Để đăng bài, bạn cần thêm số điện thoại.</p>
+            </div>
+            <div class="flex items-center justify-center gap-3 px-5 py-5">
+                <button id="needPhoneLater"
+                    class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100">
+                    Để sau
+                </button>
+                <button id="needPhoneGo" class="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">
+                    Cập nhật ngay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS check sđt trả về /dangbai với /thongtintaikhoan -->
+    <script>
+        (function () {
+            const overlay = document.getElementById('needPhoneOverlay');
+            const modal = document.getElementById('needPhoneModal');
+            const btnGo = document.getElementById('needPhoneGo');
+            const btnLater = document.getElementById('needPhoneLater');
+
+            function openModal() {
+                overlay?.classList.remove('hidden');
+                modal?.classList.remove('hidden');
+                setTimeout(() => btnGo?.focus(), 0);
+                document.addEventListener('keydown', onKeyDown);
+            }
+            function closeModal() {
+                overlay?.classList.add('hidden');
+                modal?.classList.add('hidden');
+                document.removeEventListener('keydown', onKeyDown);
+            }
+            function onKeyDown(e) {
+                if (e.key === 'Escape') { e.preventDefault(); closeModal(); }
+            }
+
+            // expose để nơi khác gọi mà KHÔNG reload trang
+            window.NeedPhoneModal = { open: openModal, close: closeModal };
+
+            // "Cập nhật ngay" -> sang /thongtintaikhoan, mở form + focus #phone (bạn đã có code receiver)
+            btnGo?.addEventListener('click', (e) => {
+                e.preventDefault();
+                try { sessionStorage.setItem('openPhoneEdit', '1'); } catch (_) { }
+                window.location.href = /*[[@{/thongtintaikhoan}]]*/ '/thongtintaikhoan';
+            });
+
+            // "Để sau" -> đóng modal
+            btnLater?.addEventListener('click', (e) => { e.preventDefault(); closeModal(); });
+            modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+            overlay?.addEventListener('click', closeModal);
+        })();
+
+        (function () {
+            const links = document.querySelectorAll('a[data-go-post]');
+            if (!links.length) return;
+
+            async function checkAndGo(href) {
+                try {
+                    const res = await fetch('/api/needs-phone', {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (res.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    const data = await res.json();
+                    if (data.needPhone) {
+                        window.NeedPhoneModal?.open();
+                    } else {
+                        window.location.href = href;
+                    }
+                } catch (e) {
+                    window.location.href = href;
+                }
+            }
+
+            links.forEach(a => {
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const href = a.getAttribute('href') || '/dangbai';
+                    checkAndGo(href);
+                });
+            });
+        })();
+    </script>
+
+</header>

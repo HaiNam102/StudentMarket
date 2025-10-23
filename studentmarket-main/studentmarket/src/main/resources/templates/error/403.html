@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market - Website trao đổi và mua bán đồ dùng cũ dành cho sinh viên DTU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        /* NỀN CHÉO TRƯỢT */
+        .bg {
+            animation: slide 3s ease-in-out infinite alternate;
+            background-image: linear-gradient(-60deg, #ef4444 50%, #fecdd3 50%);
+            position: fixed;
+            inset: 0;
+            left: -50%;
+            right: -50%;
+            opacity: .5;
+            /* nếu dùng palette (3) → đổi .35 */
+            z-index: -1;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .bg2 {
+            animation-direction: alternate-reverse;
+            animation-duration: 4s;
+        }
+
+        .bg3 {
+            animation-duration: 5s;
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translateX(-25%);
+            }
+
+            100% {
+                transform: translateX(25%);
+            }
+        }
+
+
+        /* Tôn trọng người dùng hạn chế hiệu ứng */
+        @media (prefers-reduced-motion: reduce) {
+
+            .bg,
+            .bg2,
+            .bg3 {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+    <!-- NỀN HIỆU ỨNG -->
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+
+    <!-- NỘI DUNG -->
+    <div class="bg-white w-full max-w-md rounded-2xl shadow p-8 text-center relative z-10">
+        <div class="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 11c.966 0 1.75-.784 1.75-1.75S12.966 7.5 12 7.5s-1.75.784-1.75 1.75S11.034 11 12 11zm0 2.5v3" />
+                <circle cx="12" cy="12" r="9" stroke-width="2"></circle>
+            </svg>
+        </div>
+        <h1 class="text-xl font-semibold text-gray-900">Phiên của bạn đã hết hạn!</h1>
+        <p class="text-sm text-gray-600 mt-1">
+            Có thể bạn đã đăng xuất ở tab khác hoặc yêu cầu không hợp lệ.
+        </p>
+
+        <!-- Thông tin kỹ thuật (ẩn nếu không có) -->
+        <div class="text-xs text-gray-400 mt-3 space-y-1">
+            <div th:if="${status}" th:text="'Mã lỗi: ' + ${status}"></div>
+            <div th:if="${error}" th:text="'Mô tả: ' + ${error}"></div>
+            <div th:if="${message}" th:text="'Chi tiết: ' + ${message}"></div>
+            <div th:if="${timestamp}" th:text="'Thời gian: ' + ${timestamp}"></div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-center gap-3">
+            <a th:href="@{/oauth2/authorization/google}"
+                class="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">Đăng nhập lại</a>
+            <a th:href="@{/StudentMarket}"
+                class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100">Về trang chủ</a>
+        </div>
+    </div>
+</body>
+
+</html>

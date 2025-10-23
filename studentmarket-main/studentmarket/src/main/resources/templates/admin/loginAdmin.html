@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin</title>
+    <!-- Link CSS -->
+    <link rel="stylesheet" th:href="@{/css/loginAdmin.css}">
+</head>
+<body>
+  <!-- Overlay loading -->
+  <div id="loadingOverlay" class="overlay">
+    <div class="loading-box">
+      <svg class="spin" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity=".25"/>
+        <path d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" fill="currentColor" opacity=".8"/>
+      </svg>
+      <span>Đang đăng nhập...</span>
+    </div>
+  </div>
+
+  <div class="form-box">
+    <h2>Đăng Nhập</h2>
+
+    <form id="loginForm" th:action="@{/studentmarket/login-admin}" method="post">
+      <div class="input-group">
+        <label for="username">Tên:</label>
+        <input type="text" id="username" name="username" placeholder="Nhập tên của bạn" required>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Mật Khẩu:</label>
+        <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+      </div>
+
+      <button id="loginBtn" type="submit" class="btn">
+        <span id="btnText">Đăng Nhập</span>
+        <svg id="btnSpin" class="spin" viewBox="0 0 24 24" style="display:none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity=".25"/>
+          <path d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" fill="currentColor" opacity=".8"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Link JS -->
+  <script th:src="@{/js/loginAdmin.js}"></script>
+</body>
+</html>

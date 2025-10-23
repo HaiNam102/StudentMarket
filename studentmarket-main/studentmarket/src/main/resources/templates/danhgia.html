@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .menu-parent:hover .menu-child {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Overlay nền mờ -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+
+    <!-- Header -->
+    <div th:replace="~{fragments/headerUSER :: headerUSER}"></div>
+
+    <!-- MAIN -->
+    <main class="pt-14 pb-10">
+        <div class="max-w-7xl mx-auto px-4 pt-8">
+            <!-- PROFILE -->
+            <section class="bg-white rounded-2xl shadow p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3">
+                    <!-- Cột 1 -->
+                    <div class="flex items-center gap-4 px-2 py-4 md:py-0 md:pr-6 md:border-r">
+                        <div class="relative shrink-0 w-20 h-20">
+                            <img th:src="${session.picture} ?: @{/image/header/profile-user.png}" alt="Avatar"
+                                class="w-20 h-20 rounded-full object-cover border" />
+                            <button type="button"
+                                class="absolute bottom-0 right-0 bg-gray-200 rounded-full p-1 shadow hover:bg-gray-300">
+                                <img th:src="@{/image/thongtintaikhoan/photo-camera.png}" alt="Đổi ảnh đại diện"
+                                    class="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col justify-center">
+                            <h2 class="text-base font-semibold text-gray-900 truncate"
+                                th:text="${session.full_name} ?: 'Người dùng'">
+                            </h2>
+                            <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
+                                <span>Người theo dõi: <b class="font-semibold text-gray-900">18</b></span>
+                                <span class="hidden md:inline text-gray-300">|</span>
+                                <span>Đang theo dõi: <b class="font-semibold text-gray-900">3</b></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột 2 -->
+                    <div class="px-2 py-4 md:py-0 md:px-6 md:border-r flex items-center justify-center text-center">
+                        <div>
+                            <p class="text-base font-semibold text-gray-900">Đánh giá</p>
+                            <div class="mt-1 flex items-center justify-center gap-1" id="ratingStars">
+                                <!-- ⭐ Sẽ được JS render -->
+                            </div>
+                            <p class="mt-1 text-sm text-gray-900">
+                                <span id="avgRating" class="font-semibold">-</span>
+                                <span id="ratingCount" class="text-gray-400">(0 đánh giá)</span>
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Cột 3 -->
+                    <div class="px-2 py-4 md:py-0 md:pl-6 flex items-center justify-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
+                                <img th:src="@{/image/thongtintaikhoan/star.png}" alt="Star" class="w-10 h-10" />
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <p class="text-base font-semibold text-gray-900">Điểm tích luỹ</p>
+                                <p class="mt-0.5 text-sm text-gray-600">Khả dụng: <b
+                                        class="font-semibold text-gray-900">200 điểm</b>
+                                </p>
+                                <p class="text-sm text-gray-600">Tổng tích luỹ: <b
+                                        class="font-semibold text-gray-900">510 điểm</b></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Layout -->
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Sidebar -->
+                    <aside class="md:col-span-3">
+                        <nav class="bg-white rounded-2xl shadow divide-y top-24 w-[245px]">
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-tl-2xl rounded-tr-2xl"
+                                th:href="@{/tongquan}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/home.png}" alt="Tổng Quan"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Tổng Quan</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
+                                th:href="@{/thongtintaikhoan}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/setting.png}" alt="Thông tin tài khoản"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Thông tin tài khoản</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/quanlybaidang}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/edit.png}" alt="Quản lí bài đăng"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Quản lý bài đăng</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
+                                th:href="@{/studentmarket/lichsugiaodich}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/file.png}" alt="Lịch sử giao dịch"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Lịch sử giao dịch</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/tichluydiem}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/tichluy.png}" alt="Tích lũy điểm"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Tích lũy điểm</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 bg-red-50" th:href="@{/danhgia}">
+                                <img th:src="@{/image/thongtintaikhoan/danhgia-red.png}" alt="Đánh giá"
+                                    class="w-6 h-6 object-cover" />
+                                <span class="text-red-600 font-semibold">Đánh giá</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/gopy}">
+                                <!-- Icon bằng ảnh -->
+                                <img th:src="@{/image/thongtintaikhoan/gopy.png}" alt="Góp ý & hỗ trợ"
+                                    class="w-6 h-6 object-cover" />
+                                <!-- Nội dung -->
+                                <span class="text-gray-800 font-semibold">Góp ý & hỗ trợ</span>
+                            </a>
+
+                            <a class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50" th:href="@{/dieukhoansudung}">
+                                <img th:src="@{/image/thongtintaikhoan/dieukhoan.png}" alt="Điều khoản sử dụng"
+                                    class="w-6 h-6 object-cover" />
+                                <span class="text-gray-800 font-semibold">Điều khoản sử dụng</span>
+                            </a>
+
+                            <form th:action="@{/logout}" method="post"
+                                class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 rounded-bl-2xl rounded-br-2xl">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="button"
+                                    class="js-logout-trigger flex items-center gap-3 w-full text-left">
+                                    <!-- Icon bằng ảnh -->
+                                    <img th:src="@{/image/thongtintaikhoan/dangxuat.png}" alt="Đăng xuất"
+                                        class="w-6 h-6 object-cover" />
+                                    <!-- Nội dung -->
+                                    <span class="text-gray-800 font-semibold">Đăng xuất</span>
+                                </button>
+                            </form>
+                        </nav>
+                    </aside>
+
+                    <!-- ĐÁNH GIÁ -->
+                    <section class="flex-1 w-[980px]">
+                        <div class="bg-white rounded-2xl shadow px-6" style="padding-bottom: 24px;">
+                            <!-- Tabs -->
+                            <div id="rvTabs"
+                                class="grid grid-cols-3 text-sm font-semibold text-center border-b border-gray-200">
+                                <button data-rv-tab="todo-seller"
+                                    class="rv-tab py-3 border-b-2 border-red-500 text-red-600">
+                                    Đánh giá người đăng <span class="count ml-1">(0)</span>
+                                </button>
+                                <button data-rv-tab="todo-buyer"
+                                    class="rv-tab py-3 border-b-2 border-transparent text-gray-600">
+                                    Đánh giá người nhận <span class="count ml-1">(0)</span>
+                                </button>
+                                <button data-rv-tab="done"
+                                    class="rv-tab py-3 border-b-2 border-transparent text-gray-600">
+                                    Đã đánh giá <span class="count ml-1">(0)</span>
+                                </button>
+                            </div>
+
+                            <!-- Panels -->
+                            <div class="mt-4">
+                                <div data-rv-panel="todo-seller" class="space-y-4"></div>
+                                <div data-rv-panel="todo-buyer" class="hidden space-y-4"></div>
+                                <div data-rv-panel="done" class="hidden space-y-4"></div>
+                            </div>
+                        </div>
+
+                        <!-- MODAL ĐÁNH GIÁ -->
+                        <div id="rateModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-black/50"></div>
+                            <div class="relative w-[520px] max-w-[92vw] bg-white rounded-xl shadow-lg p-5 z-10">
+                                <div class="flex items-center justify-between">
+                                    <h3 id="rateTitle" class="text-base font-bold text-gray-900">Đánh giá</h3>
+                                    <button id="rateClose"
+                                        class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100">
+                                        <i class="fa-solid fa-xmark text-lg text-gray-600"></i>
+                                    </button>
+                                </div>
+
+                                <div class="mt-3 flex items-center gap-1 text-gray-300" id="starWrap"
+                                    aria-label="Chọn số sao"></div>
+
+                                <textarea id="rateContent" rows="4"
+                                    class="mt-3 w-full text-sm rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                                    placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+
+                                <div class="mt-4 flex justify-end gap-2">
+                                    <button id="rateCancel"
+                                        class="px-3 py-1.5 text-sm rounded-md bg-gray-100 hover:bg-gray-200">Hủy</button>
+                                    <button id="rateSave"
+                                        class="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700">Lưu</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Overlay cho modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-[9998]"></div>
+    <!-- Modal xác nhận đăng xuất -->
+    <div th:replace="~{fragments/modallogout :: modallogout}"></div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+        /* ===================== TABS ===================== */
+        var rvTabs = document.querySelectorAll('.rv-tab');
+        var rvPanels = document.querySelectorAll('[data-rv-panel]');
+
+        function setActiveTab(target) {
+            rvTabs.forEach(function (t) {
+                t.classList.remove('text-red-600', 'border-red-500');
+                t.classList.add('text-gray-600', 'border-transparent');
+            });
+            var active = document.querySelector('.rv-tab[data-rv-tab="' + target + '"]');
+            if (active) {
+                active.classList.remove('text-gray-600', 'border-transparent');
+                active.classList.add('text-red-600', 'border-red-500');
+            }
+            rvPanels.forEach(function (p) {
+                p.classList.toggle('hidden', p.getAttribute('data-rv-panel') !== target);
+            });
+        }
+        rvTabs.forEach(function (btn) {
+            btn.addEventListener('click', function () { setActiveTab(btn.dataset.rvTab); });
+        });
+
+        /* ===================== MODAL ===================== */
+        var modal = document.getElementById('rateModal');
+        var starWrap = document.getElementById('starWrap');
+        var rateTitle = document.getElementById('rateTitle');
+        var rateContent = document.getElementById('rateContent');
+        var btnClose = document.getElementById('rateClose');
+        var btnCancel = document.getElementById('rateCancel');
+        var btnSave = document.getElementById('rateSave');
+
+        var currentCard = null;
+        var currentStars = 5;
+        var currentTargetUserId = null;   // người BỊ bạn đánh giá (đối phương)
+        var currentAsRole = null;   // vai trò của BẠN trong giao dịch: 'SELLER' | 'BUYER'
+        var currentTransactionId = null;
+
+        function openModal(card) {
+            currentCard = card;
+            currentStars = 5;
+            rateContent.value = '';
+            rateTitle.textContent = 'Đánh giá: ' + (card.dataset.name || '');
+            currentTargetUserId = Number(card.dataset.userId);
+            currentAsRole = card.dataset.asRole;
+            currentTransactionId = card.dataset.txId ? Number(card.dataset.txId) : null;
+            renderStars();
+            modal.classList.remove('hidden');
+        }
+        function closeModal() { modal.classList.add('hidden'); }
+
+        function renderStars() {
+            starWrap.innerHTML = '';
+            for (var i = 1; i <= 5; i++) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'star-btn w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100';
+                b.innerHTML = '<i class="' + (i <= currentStars ? 'fa-solid' : 'fa-regular') +
+                    ' fa-star text-2xl ' + (i <= currentStars ? 'text-yellow-400' : 'text-gray-300') + '"></i>';
+                (function (idx) {
+                    b.addEventListener('click', function () { currentStars = idx; renderStars(); });
+                })(i);
+                starWrap.appendChild(b);
+            }
+        }
+        btnClose.addEventListener('click', closeModal);
+        btnCancel.addEventListener('click', closeModal);
+
+        /* ===================== HELPERS ===================== */
+        function fmtDate(d) {
+            try { return new Date(d).toLocaleDateString('vi-VN'); } catch (e) { return d; }
+        }
+
+        /* ===================== CARDS (đồng bộ UI cho cả 3 tab) ===================== */
+        // Card cho 2 tab chờ (người kia đã đánh giá bạn → bạn bấm để đánh giá lại)
+        function mkCardPendingFromReceived(rec, asRole) {
+
+            var roleBtnText = (asRole === 'BUYER')
+                ? 'Đánh giá người đăng'   // rate seller
+                : 'Đánh giá người nhận';
+
+            var el = document.createElement('article');
+            el.className = 'rv-card flex gap-4 p-4 border border-gray-200 rounded-xl bg-white hover:bg-gray-50';
+
+            el.dataset.name = rec.reviewerName || '';
+            el.dataset.role = (asRole === 'SELLER') ? 'seller' : 'buyer';
+            el.dataset.userId = rec.reviewerId;
+            el.dataset.asRole = asRole;
+            if (rec.transactionId) el.dataset.txId = rec.transactionId;
+
+            var s = Number(rec.rating || 0);
+            var stars = '';
+            for (var i = 0; i < s; i++) stars += '<i class="fa-solid fa-star"></i>';
+            for (var j = 0; j < 5 - s; j++) stars += '<i class="fa-regular fa-star text-gray-300"></i>';
+
+            el.innerHTML =
+                '<img src="' + (rec.reviewerAvatar || "/image/header_user/avartar.jpg") + '" class="w-12 h-12 rounded-full object-cover border" alt="">' +
+                '<div class="flex-1 min-w-0">' +
+                '<div class="flex items-start justify-between gap-2">' +
+                '<div class="min-w-0">' +
+                '<div class="flex items-center gap-3">' +
+                '<h4 class="font-semibold text-gray-900 truncate">' + (rec.reviewerName || '') + ' — Đã đánh giá bạn</h4>' +
+                '<button class="btn-rate shrink-0 inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full border border-red-200 text-red-600 hover:bg-red-600 hover:text-white">' +
+                '<i class="fa-regular fa-star"></i> ' + roleBtnText +
+                '</button>' +
+                '</div>' +
+                '<div class="mt-1 flex items-center gap-1 text-yellow-400">' + stars +
+                '<span class="ml-2 text-xs text-gray-600">' + s + '/5</span>' +
+                '</div>' +
+                (rec.comment ? '<p class="mt-2 text-sm text-gray-700 break-words">' + rec.comment + '</p>' : '') +
+                '</div>' +
+                '<span class="text-xs text-gray-500 whitespace-nowrap">' + fmtDate(rec.createdAt) + '</span>' +
+                '</div>' +
+                '</div>';
+
+            return el;
+        }
+
+        // Card cho tab "Đã đánh giá" (những gì mình đã viết)
+        function mkCardDoneFromWritten(w) {
+            var el = document.createElement('article');
+            el.className = 'rv-card flex gap-4 p-4 border border-gray-200 rounded-xl bg-white hover:bg-gray-50';
+
+            var s = Number(w.rating || 0), stars = '';
+            for (var i = 0; i < s; i++) stars += '<i class="fa-solid fa-star"></i>';
+            for (var j = 0; j < 5 - s; j++) stars += '<i class="fa-regular fa-star text-gray-300"></i>';
+
+            el.innerHTML =
+                '<img src="' + (w.revieweeAvatar || "/image/header_user/avatar.jpg") + '" class="w-12 h-12 rounded-full object-cover border" alt="">' +
+                '<div class="flex-1 min-w-0">' +
+                // w-full + ml-auto + shrink-0 để đẩy ngày sát phải
+                '<div class="w-full flex items-start justify-between gap-2">' +
+                '<div class="min-w-0">' +
+                '<h4 class="font-semibold text-gray-900 truncate">' + (w.revieweeName || '') + ' — Bạn đã đánh giá</h4>' +
+                '<div class="mt-1 flex items-center gap-1 text-yellow-400">' + stars +
+                '<span class="ml-2 text-xs text-gray-600">' + s + '/5</span>' +
+                '</div>' +
+                (w.comment ? '<p class="mt-2 text-sm text-gray-700 break-words">' + w.comment + '</p>' : '') +
+                '</div>' +
+                '<span class="ml-auto pl-2 text-xs text-gray-500 whitespace-nowrap shrink-0">' + fmtDate(w.createdAt) + '</span>' +
+                '</div>' +
+                '</div>';
+
+            return el;
+        }
+
+
+        /* ===================== COUNTS ===================== */
+        function updateCounts() {
+            document.querySelectorAll('.rv-tab').forEach(function (tab) {
+                var id = tab.dataset.rvTab;
+                var panel = document.querySelector('[data-rv-panel="' + id + '"]');
+                var cards = panel ? panel.querySelectorAll('.rv-card') : [];
+                tab.querySelector('.count').textContent = '(' + cards.length + ')';
+
+                var empty = panel.querySelector('.rv-empty');
+                if (cards.length === 0) {
+                    if (!empty) {
+                        empty = document.createElement('div');
+                        empty.className = 'rv-empty text-sm text-gray-500 p-6 text-center';
+                        empty.textContent = 'Bạn không có đánh giá nào.';
+                        panel.appendChild(empty);
+                    }
+                    empty.classList.remove('hidden');
+                } else if (empty) {
+                    empty.classList.add('hidden');
+                }
+            });
+        }
+
+        /* ===================== FETCH + RENDER ===================== */
+        async function loadCategorized() {
+            try {
+                var res = await fetch('/api/reviews/categorized', { credentials: 'include' });
+                var ct = res.headers.get('content-type') || '';
+                if (!ct.includes('application/json')) {
+                    if (res.status === 401 || res.redirected) { window.location.href = '/login'; return; }
+                    alert('Không nhận được JSON từ server.');
+                    return;
+                }
+                if (!res.ok) throw new Error('Fetch failed');
+
+                var data = await res.json();
+                updateAverageStats(data);
+
+                // Map: todo-seller <= asBuyerReceived ; todo-buyer <= asSellerReceived ; done <= writtenByMe
+                var pSeller = document.querySelector('[data-rv-panel="todo-seller"]');
+                var pBuyer = document.querySelector('[data-rv-panel="todo-buyer"]');
+                var pDone = document.querySelector('[data-rv-panel="done"]');
+
+                pSeller.innerHTML = '';
+                pBuyer.innerHTML = '';
+                pDone.innerHTML = '';
+
+                (data.asBuyerReceived || []).forEach(function (item) {
+                    // Tôi là BUYER → tab “Đánh giá người đăng” (tức đánh giá SELLER)
+                    pSeller.appendChild(mkCardPendingFromReceived(item, 'BUYER'));
+                });
+                (data.asSellerReceived || []).forEach(function (item) {
+                    // Tôi là SELLER → tab “Đánh giá người nhận” (tức đánh giá BUYER)
+                    pBuyer.appendChild(mkCardPendingFromReceived(item, 'SELLER'));
+                });
+
+                (data.writtenByMe || []).forEach(function (item) {
+                    pDone.appendChild(mkCardDoneFromWritten(item));
+                });
+
+                updateCounts();
+            } catch (e) {
+                console.error(e);
+                alert('Không tải được dữ liệu đánh giá. Vui lòng thử lại.');
+            }
+        }
+
+        /* ===================== CLICK "ĐÁNH GIÁ" ===================== */
+        document.addEventListener('click', function (e) {
+            var rateBtn = e.target.closest('.btn-rate');
+            if (!rateBtn) return;
+            var card = rateBtn.closest('.rv-card');
+            openModal(card);
+        });
+
+        /* ===================== LƯU ĐÁNH GIÁ ===================== */
+        btnSave.addEventListener('click', async function () {
+            if (!currentCard || !currentTargetUserId) return;
+
+            if (!currentTransactionId) {
+                alert('Thiếu transactionId');
+                return;
+            }
+
+            const payload = {
+                ratedUserId: currentTargetUserId,     // id người BỊ đánh giá (đối phương)
+                stars: currentStars,                  // số sao
+                content: rateContent.value.trim()     // nội dung
+            };
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+            const headers = { 'Content-Type': 'application/json' };
+            if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+            try {
+                const res = await fetch(`/api/transactions/${currentTransactionId}/rate`, {
+                    method: 'POST',
+                    headers,
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.status === 401) { window.location.href = '/login'; return; }
+                if (!res.ok) throw new Error(await res.text().catch(() => 'Lỗi không xác định'));
+
+                alert('Đánh giá thành công!');
+                closeModal();
+                loadCategorized(); // reload lại 3 tab
+            } catch (e) {
+                console.error(e);
+                alert('Không thể lưu đánh giá: ' + e.message);
+            }
+        });
+
+        /* ===================== ĐÁNH GIÁ TRUNG BÌNH ===================== */
+        function calcAverage(list) {
+            if (!list || list.length === 0) return 0;
+            const total = list.reduce((sum, r) => sum + (r.rating || 0), 0);
+            return total / list.length;
+        }
+
+        function renderStars(stars) {
+            return Array.from({ length: 5 }, (_, i) =>
+                `<i class="fa-${i < stars ? 'solid' : 'regular'} fa-star ${i < stars ? 'text-yellow-400' : 'text-gray-300'}"></i>`
+            ).join('');
+        }
+
+        /* ===================== CẬP NHẬT ĐÁNH GIÁ TRUNG BÌNH ===================== */
+        function updateAverageStats(data) {
+            const asSeller = data.asSellerReceived || []; // bạn là người bán -> được người mua đánh giá
+            const asBuyer = data.asBuyerReceived || [];   // bạn là người mua -> được người bán đánh giá
+
+            const all = [...asSeller, ...asBuyer];
+            const avgSeller = calcAverage(asSeller);
+            const avgBuyer = calcAverage(asBuyer);
+            const avgAll = calcAverage(all);
+            const totalReviews = all.length;
+
+            // Cập nhật phần hiển thị sao
+            const ratingStars = document.getElementById('ratingStars');
+            ratingStars.innerHTML = renderStars(Math.round(avgAll));
+
+            document.getElementById('avgRating').textContent = avgAll ? avgAll.toFixed(1) : "-";
+            document.getElementById('ratingCount').textContent = `(${totalReviews} đánh giá)`;
+
+            console.log(`⭐ Trung bình chung: ${avgAll.toFixed(2)}, Người bán: ${avgSeller.toFixed(2)}, Người mua: ${avgBuyer.toFixed(2)}`);
+        }
+
+
+
+        /* ===================== INIT ===================== */
+        (function () {
+            setActiveTab('todo-seller');
+            loadCategorized();
+        })();
+        /* ===================== MENU DROPDOWN ===================== */
+        const menuBtn = document.getElementById('menuBtn');
+        const menuDropdown = document.getElementById('menuDropdown');
+        const overlayMenu = document.getElementById('overlay');
+
+
+        menuBtn.addEventListener('click', () => {
+            const isHidden = menuDropdown.classList.contains('hidden');
+            // Đóng tất cả trước
+            menuDropdown.classList.add('hidden');
+            overlayMenu.classList.add('hidden');
+            // Mở nếu đang ẩn
+            if (isHidden) {
+                menuDropdown.classList.remove('hidden');
+                overlayMenu.classList.remove('hidden');
+            }
+        });
+
+        // Ẩn menu khi click ra ngoài
+        overlayMenu.addEventListener('click', () => {
+            menuDropdown.classList.add('hidden');
+            overlayMenu.classList.add('hidden');
+        });
+
+    </script>
+
+    <!-- JS của phần Header không được xóa -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const dropdowns = {
+            menuBtn: 'menuDropdown',
+            favBtn: 'favDropdown',
+            notiBtn: 'notiDropdown',
+            avatarBtn: 'dropdownMenu'
+        };
+
+        Object.entries(dropdowns).forEach(([btnId, menuId]) => {
+            const btn = document.getElementById(btnId);
+            const menu = document.getElementById(menuId);
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !menu.classList.contains('hidden');
+
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    overlay.classList.add('hidden');
+                } else {
+                    menu.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            Object.values(dropdowns).forEach(id =>
+                document.getElementById(id).classList.add('hidden')
+            );
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!Object.keys(dropdowns).some(btnId =>
+                document.getElementById(btnId).contains(e.target)
+            )) {
+                overlay.classList.add('hidden');
+                Object.values(dropdowns).forEach(id =>
+                    document.getElementById(id).classList.add('hidden')
+                );
+            }
+        });
+    </script>
+
+
+    <script th:src="@{/js/favorite.js}"></script>
+
+</body>
+
+</html>
