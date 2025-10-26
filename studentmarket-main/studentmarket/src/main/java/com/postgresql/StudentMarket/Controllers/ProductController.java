@@ -1,9 +1,11 @@
 package com.postgresql.StudentMarket.Controllers;
 
+import com.postgresql.StudentMarket.Dto.ChildCategoryDTO;
 import com.postgresql.StudentMarket.Dto.ProductViewDTO;
 import com.postgresql.StudentMarket.Dto.SearchReqDTO;
 import com.postgresql.StudentMarket.Entities.User;
 import com.postgresql.StudentMarket.Repository.UserRepository;
+import com.postgresql.StudentMarket.Services.ChildCategoryService;
 import com.postgresql.StudentMarket.Services.ProductService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final UserRepository userRepository;
-
+    private final ChildCategoryService childCategoryService;
     // Check sđt không reload trang
     @GetMapping("/api/needs-phone")
     @ResponseBody
@@ -206,16 +208,33 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/searchProduct")
-    public String searchProduct(@ModelAttribute("products") SearchReqDTO search,
+    @GetMapping("/StudentMarket/SearchProduct")
+    public String searchProduct(@ModelAttribute("search") SearchReqDTO search,
                                 @RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
                                 Model model) {
         Pageable pageable = PageRequest.of(page, size);
         var result = productService.searchProducts(search, pageable);
 
+        model.addAttribute("products", result.getContent());
         model.addAttribute("page", result);
         model.addAttribute("size", size);
-        return "searchProduct";
+        model.addAttribute("activeChildId", search.getChildCategoryId());
+        return "homeGUEST";
+    }
+
+    @GetMapping("/StudentMarket/SearchProductUser")
+    public String searchProductUser(@ModelAttribute("search") SearchReqDTO search,
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "10") int size,
+                                Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        var result = productService.searchProducts(search, pageable);
+
+        model.addAttribute("products", result.getContent());
+        model.addAttribute("page", result);
+        model.addAttribute("size", size);
+        model.addAttribute("activeChildId", search.getChildCategoryId());
+        return "homeUSER";
     }
 }

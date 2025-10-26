@@ -196,11 +196,11 @@ public class ProductService {
         return p;
     }
 
-    public Page<ProductViewDTO> searchProducts(SearchReqDTO searchReqDTO, Pageable pageable) {
+    public Page<Product> searchProducts(SearchReqDTO searchReqDTO, Pageable pageable) {
         String nameProduct = (searchReqDTO.getName() == null || searchReqDTO.getName().isBlank()) ? null : searchReqDTO.getName().trim();
         String location = (searchReqDTO.getLocation() == null || searchReqDTO.getLocation().isBlank()) ? null : searchReqDTO.getLocation().trim();
 
         var page = productRepository.searchProducts(nameProduct, searchReqDTO.getChildCategoryId(), location, pageable);
-        return page.map(ProductViewDTO::fromEntityToDto);
+        return page;
     }
 }
