@@ -50,7 +50,7 @@
         <div class="flex-1 px-4 flex justify-center gap-2">
             <form th:action="@{/StudentMarket/SearchProduct}" method="get" class="flex w-full max-w-3xl" id="searchForm">
                 <div class="relative flex-1">
-                    <div class="flex items-center w-full bg-white rounded-md">
+                    <div class="flex items-center w-full bg-white rounded-lg shadow-sm">
                         <!-- Icon search -->
                         <span class="absolute left-2 text-gray-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,8 @@
                                name="name"
                                placeholder="Tìm sản phẩm..."
                                th:value="${param.name}"
-                               class="flex-1 px-4 py-2 pl-10 rounded-l-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+                               class="w-full px-4 py-2.5 pl-10 text-gray-800 placeholder-gray-400 rounded-lg appearance-none focus:outline-none border-none select-none"
+                               style="-webkit-tap-highlight-color: transparent;"
                                onkeyup="showSuggestions(this, productSuggestions, 'productList')"
                                autocomplete="off" />
 
@@ -86,7 +87,8 @@
                                            name="location"
                                            placeholder="Khu vực"
                                            th:value="${param.location}"
-                                           class="w-full px-2 py-2 rounded-r-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400 border-none cursor-pointer"
+                                           class="w-full px-3 py-2.5 rounded-r-lg text-gray-800 placeholder-gray-400 appearance-none focus:outline-none border-none cursor-pointer select-none"
+                                        style="-webkit-tap-highlight-color: transparent;"
                                            readonly />
                                     <span class="absolute right-2 text-gray-400">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
